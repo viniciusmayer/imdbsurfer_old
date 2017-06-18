@@ -1,0 +1,5 @@
+http://www.imdb.com/genre/
+response.css('table[class="genre-table"]').css('a::attr(href)').extract()
+
+http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced
+response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]').extract()

@@ -1,5 +1,44 @@
 http://www.imdb.com/genre/
 response.css('table[class="genre-table"]').css('a::attr(href)').extract()
 
-http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced
-response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]').extract()
+scrapy shell "http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced"
+
+###
+### index
+###
+response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
+
+###
+### year
+###
+response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-year text-muted unbold"]::text').extract()
+
+###
+### link
+###
+response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('a::attr(href)').extract()
+
+###
+### name
+###
+response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('a::text').extract()
+
+###
+### genres
+###
+response.css('div[class="lister-item-content"]').css('p[class="text-muted "]').css('span[class="genre"]::text').extract()
+
+###
+### rate
+###
+response.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-imdb-rating"]').css('strong::text').extract()
+
+###
+### director
+###
+response.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract()
+
+###
+### votes 
+###
+response.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract()

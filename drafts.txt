@@ -44,3 +44,17 @@ response.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text
 ### votes 
 ###
 response.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract()
+
+
+movie
+	name
+	year
+	director
+	index
+	rate
+	votes 
+	link
+	genres[]
+
+genre
+	name

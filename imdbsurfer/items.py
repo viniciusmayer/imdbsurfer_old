@@ -8,7 +8,14 @@
 import scrapy
 
 
-class ImdbsurferItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class Movie(scrapy.Item):
+    index = scrapy.Field()
+    year = scrapy.Field()
+    link = scrapy.Field()
+    name = scrapy.Field()
+    genres = scrapy.Field()
+    minutes = scrapy.Field()
+    rate = scrapy.Field()
+    metascore = scrapy.Field()
+    director = scrapy.Field()
+    votes = scrapy.Field()

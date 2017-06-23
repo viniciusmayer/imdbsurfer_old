@@ -1,0 +1,546 @@
+[
+	{
+		"index": "1",
+		"name": "Lawrence of Arabia",
+		"minutes": "216",
+		"link": "/title/tt0056172",
+		"year": "1962",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "100",
+		"votes": "208,275",
+		"director": "David Lean",
+		"rate": "8.3"
+	},
+	{
+		"index": "2",
+		"name": "The Message",
+		"minutes": "177",
+		"link": "/title/tt0074896",
+		"year": "1976",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "36,194",
+		"director": "Moustapha Akkad",
+		"rate": "8.3"
+	},
+	{
+		"index": "3",
+		"name": "Dersu Uzala",
+		"minutes": "142",
+		"link": "/title/tt0071411",
+		"year": "1975",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "18,841",
+		"director": "Akira Kurosawa",
+		"rate": "8.3"
+	},
+	{
+		"index": "4",
+		"name": "Into the Wild",
+		"minutes": "148",
+		"link": "/title/tt0758758",
+		"year": "2007",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "73",
+		"votes": "462,025",
+		"director": "Sean Penn",
+		"rate": "8.1"
+	},
+	{
+		"index": "5",
+		"name": "Aguirre, the Wrath of God",
+		"minutes": "95",
+		"link": "/title/tt0068182",
+		"year": "1972",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "41,025",
+		"director": "Werner Herzog",
+		"rate": "8.0"
+	},
+	{
+		"index": "6",
+		"name": "Spartacus",
+		"minutes": "197",
+		"link": "/title/tt0054331",
+		"year": "1960",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "103,338",
+		"director": "Stanley Kubrick",
+		"rate": "7.9"
+	},
+	{
+		"index": "7",
+		"name": "The Right Stuff",
+		"minutes": "193",
+		"link": "/title/tt0086197",
+		"year": "1983",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "47,363",
+		"director": "Philip Kaufman",
+		"rate": "7.9"
+	},
+	{
+		"index": "8",
+		"name": "The Motorcycle Diaries",
+		"minutes": "126",
+		"link": "/title/tt0318462",
+		"year": "2004",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "75",
+		"votes": "86,416",
+		"director": "Walter Salles",
+		"rate": "7.8"
+	},
+	{
+		"index": "9",
+		"name": "Mutiny on the Bounty",
+		"minutes": "132",
+		"link": "/title/tt0026752",
+		"year": "1935",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "17,105",
+		"director": "Frank Lloyd",
+		"rate": "7.8"
+	},
+	{
+		"index": "10",
+		"name": "127 Hours",
+		"minutes": "94",
+		"link": "/title/tt1542344",
+		"year": "2010",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "82",
+		"votes": "295,151",
+		"director": "Danny Boyle",
+		"rate": "7.6"
+	},
+	{
+		"index": "11",
+		"name": "Jodhaa Akbar",
+		"minutes": "213",
+		"link": "/title/tt0449994",
+		"year": "2008",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": "69",
+		"votes": "22,784",
+		"director": "Ashutosh Gowariker",
+		"rate": "7.6"
+	},
+	{
+		"index": "12",
+		"name": "Gera\u00e7\u00e3o Roubada",
+		"minutes": "94",
+		"link": "/title/tt0252444",
+		"year": "2002",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "80",
+		"votes": "24,295",
+		"director": "Phillip Noyce",
+		"rate": "7.5"
+	},
+	{
+		"index": "13",
+		"name": "Once Upon a Time in China",
+		"minutes": "134",
+		"link": "/title/tt0103285",
+		"year": "1991",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "14,645",
+		"director": "Hark Tsui",
+		"rate": "7.4"
+	},
+	{
+		"index": "14",
+		"name": "The Walk",
+		"minutes": "123",
+		"link": "/title/tt3488710",
+		"year": "II 2015",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Crime"
+		],
+		"metascore": "70",
+		"votes": "93,187",
+		"director": "Robert Zemeckis",
+		"rate": "7.3"
+	},
+	{
+		"index": "15",
+		"name": "Rescue Dawn",
+		"minutes": "120",
+		"link": "/title/tt0462504",
+		"year": "2006",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "77",
+		"votes": "88,279",
+		"director": "Werner Herzog",
+		"rate": "7.3"
+	},
+	{
+		"index": "16",
+		"name": "Mongol: The Rise of Genghis Khan",
+		"minutes": "126",
+		"link": "/title/tt0416044",
+		"year": "2007",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "74",
+		"votes": "39,174",
+		"director": "Sergei Bodrov",
+		"rate": "7.3"
+	},
+	{
+		"index": "17",
+		"name": "El Cid",
+		"minutes": "182",
+		"link": "/title/tt0054847",
+		"year": "1961",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "10,401",
+		"director": "Anthony Mann",
+		"rate": "7.3"
+	},
+	{
+		"index": "18",
+		"name": "Alexandria",
+		"minutes": "127",
+		"link": "/title/tt1186830",
+		"year": "2009",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "55,951",
+		"director": "Alejandro Amen\u00e1bar",
+		"rate": "7.2"
+	},
+	{
+		"index": "19",
+		"name": "Tracks",
+		"minutes": "112",
+		"link": "/title/tt2167266",
+		"year": "I 2013",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "78",
+		"votes": "21,813",
+		"director": "John Curran",
+		"rate": "7.2"
+	},
+	{
+		"index": "20",
+		"name": "Wild",
+		"minutes": "115",
+		"link": "/title/tt2305051",
+		"year": "I 2014",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "76",
+		"votes": "96,241",
+		"director": "Jean-Marc Vall\u00e9e",
+		"rate": "7.1"
+	},
+	{
+		"index": "21",
+		"name": "Alive",
+		"minutes": "120",
+		"link": "/title/tt0106246",
+		"year": "1993",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "41,399",
+		"director": "Frank Marshall",
+		"rate": "7.1"
+	},
+	{
+		"index": "22",
+		"name": "Seven Years in Tibet",
+		"minutes": "136",
+		"link": "/title/tt0120102",
+		"year": "1997",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "101,918",
+		"director": "Jean-Jacques Annaud",
+		"rate": "7.0"
+	},
+	{
+		"index": "23",
+		"name": "In the Heart of the Sea",
+		"minutes": "122",
+		"link": "/title/tt1390411",
+		"year": "2015",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "91,345",
+		"director": "Ron Howard",
+		"rate": "6.9"
+	},
+	{
+		"index": "24",
+		"name": "Rob Roy",
+		"minutes": "139",
+		"link": "/title/tt0114287",
+		"year": "1995",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"History"
+		],
+		"metascore": null,
+		"votes": "35,822",
+		"director": "Michael Caton-Jones",
+		"rate": "6.9"
+	},
+	{
+		"index": "25",
+		"name": "Hidalgo",
+		"minutes": "136",
+		"link": "/title/tt0317648",
+		"year": "2004",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "70,132",
+		"director": "Joe Johnston",
+		"rate": "6.7"
+	},
+	{
+		"index": "26",
+		"name": "Wyatt Earp",
+		"minutes": "191",
+		"link": "/title/tt0111756",
+		"year": "1994",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Crime"
+		],
+		"metascore": null,
+		"votes": "37,421",
+		"director": "Lawrence Kasdan",
+		"rate": "6.6"
+	},
+	{
+		"index": "27",
+		"name": "1492: A Conquista do Para\u00edso",
+		"minutes": "154",
+		"link": "/title/tt0103594",
+		"year": "1992",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "23,781",
+		"director": "Ridley Scott",
+		"rate": "6.5"
+	},
+	{
+		"index": "28",
+		"name": "Ned Kelly",
+		"minutes": "110",
+		"link": "/title/tt0277941",
+		"year": "2003",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "22,549",
+		"director": "Gregor Jordan",
+		"rate": "6.5"
+	},
+	{
+		"index": "29",
+		"name": "The Messenger: The Story of Joan of Arc",
+		"minutes": "148",
+		"link": "/title/tt0151137",
+		"year": "1999",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "57,779",
+		"director": "Luc Besson",
+		"rate": "6.4"
+	},
+	{
+		"index": "30",
+		"name": "O Bar\u00e3o Vermelho",
+		"minutes": "106",
+		"link": "/title/tt0365675",
+		"year": "2008",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "10,158",
+		"director": "Nikolai M\u00fcllersch\u00f6n",
+		"rate": "6.4"
+	},
+	{
+		"index": "31",
+		"name": "A Walk in the Woods",
+		"minutes": "104",
+		"link": "/title/tt1178665",
+		"year": "2015",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Comedy"
+		],
+		"metascore": null,
+		"votes": "17,945",
+		"director": "Ken Kwapis",
+		"rate": "6.3"
+	},
+	{
+		"index": "32",
+		"name": "Amelia",
+		"minutes": "111",
+		"link": "/title/tt1129445",
+		"year": "2009",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": null,
+		"votes": "10,443",
+		"director": "Mira Nair",
+		"rate": "5.8"
+	},
+	{
+		"index": "33",
+		"name": "Open Water",
+		"minutes": "79",
+		"link": "/title/tt0374102",
+		"year": "2003",
+		"genres": [
+			"Adventure",
+			"Biography",
+			"Drama"
+		],
+		"metascore": "63",
+		"votes": "44,219",
+		"director": "Chris Kentis",
+		"rate": "5.7"
+	},
+	{
+		"index": "34",
+		"name": "Alexander",
+		"minutes": "175",
+		"link": "/title/tt0346491",
+		"year": "2004",
+		"genres": [
+			"Action",
+			"Adventure",
+			"Biography"
+		],
+		"metascore": null,
+		"votes": "144,496",
+		"director": "Oliver Stone",
+		"rate": "5.5"
+	}
+]

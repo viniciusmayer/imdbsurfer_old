@@ -69,16 +69,16 @@ class MoviesSpider(scrapy.Spider):
         start_urls.append(url.format(i)) 
 
     def parse(self, response):
-        for i in response.css('div[class="lister-item-content"]'):
+        for i in response.css('div[class="lister-item mode-advanced"]'):
             item = items.Movie()
-            item['index'] = index(i.css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract())
-            item['year'] = year(i.css('h3[class="lister-item-header"]').css('span[class="lister-item-year text-muted unbold"]::text').extract())
-            item['link'] = link(i.css('h3[class="lister-item-header"]').css('a::attr(href)').extract())
-            item['name'] = extractAndClean(i.css('h3[class="lister-item-header"]').css('a::text').extract())
-            item['genres'] = genres(i.css('p[class="text-muted "]').css('span[class="genre"]::text').extract())
-            item['minutes'] = minutes(i.css('p[class="text-muted "]').css('span[class="runtime"]::text').extract())
-            item['rate'] = extractAndClean(i.css('div[class="ratings-bar"]').css('div[class="inline-block ratings-imdb-rating"]').css('strong::text').extract())
-            item['metascore'] = extractAndClean(i.css('div[class="ratings-bar"]').css('div[class="inline-block ratings-metascore"]').css('span[class="metascore  favorable"]::text').extract())
-            item['director'] = extractAndClean(i.css('p[class=""]').css('a::text').extract())
-            item['votes'] = votes(i.css('p[class="sort-num_votes-visible"]').css('span::text').extract())            
+            item['index'] = index(i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract())
+            item['year'] = year(i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-year text-muted unbold"]::text').extract())
+            item['link'] = link(i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('a::attr(href)').extract())
+            item['name'] = extractAndClean(i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('a::text').extract())
+            item['genres'] = genres(i.css('div[class="lister-item-content"]').css('p[class="text-muted "]').css('span[class="genre"]::text').extract())
+            item['minutes'] = minutes(i.css('div[class="lister-item-content"]').css('p[class="text-muted "]').css('span[class="runtime"]::text').extract())
+            item['rate'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-imdb-rating"]').css('strong::text').extract())
+            item['metascore'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-metascore"]').css('span[class="metascore  favorable"]::text').extract())
+            item['director'] = extractAndClean(i.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract())
+            item['votes'] = votes(i.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract())
             yield item

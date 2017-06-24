@@ -45,6 +45,7 @@ response.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text
 ###
 response.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract()
 
+<<<<<<< HEAD
 movie
 	id
 	name
@@ -115,3 +116,18 @@ Western
 'thriller',
 'war',
 'western'
+=======
+
+movie
+	name
+	year
+	director
+	index
+	rate
+	votes 
+	link
+	genres[]
+
+genre
+	name
+>>>>>>> 8442723fbff5beb3551653e465f789d52ced74b2

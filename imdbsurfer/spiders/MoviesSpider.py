@@ -1,4 +1,5 @@
 import scrapy
+import itertools
 
 from imdbsurfer import items
 
@@ -13,6 +14,16 @@ def year(value):
 
 def minutes(value):
     return clean(value[0].split()[0])
+
+def artists(a, b):
+    _a = []
+    for i in a:
+        _a.append(clean(i))
+    _b = []
+    for i in b:
+        _b.append(clean(i))
+    _b.remove('')
+    return list(itertools.chain.from_iterable(zip(_b,_a)))
 
 def genres(value):
     _value = []
@@ -80,5 +91,8 @@ class MoviesSpider(scrapy.Spider):
             item['rate'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-imdb-rating"]').css('strong::text').extract())
             item['metascore'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-metascore"]').css('span[class="metascore  favorable"]::text').extract())
             item['director'] = extractAndClean(i.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract())
+            a = i.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract()
+            b = i.css('div[class="lister-item-content"]').css('p[class=""]::text').extract()
+            item['artists'] = artists(a, b)
             item['votes'] = votes(i.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract())
             yield item

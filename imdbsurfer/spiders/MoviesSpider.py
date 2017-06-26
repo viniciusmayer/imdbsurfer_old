@@ -25,6 +25,12 @@ def artists(a, b):
     _b.remove('')
     return list(itertools.chain.from_iterable(zip(_b,_a)))
 
+def directors(value):
+    return value[1:value.index('Stars:')]
+
+def stars(value):
+    return value[value.index('Stars:') + 1:len(value)]
+
 def genres(value):
     _value = []
     for i in value[0].split(","):
@@ -45,36 +51,10 @@ def clean(value):
     return None
 
 class MoviesSpider(scrapy.Spider):
-    genres = ['action',
-        'adventure',
-        'animation',
-        'biography',
-        'comedy',
-        'crime',
-        'documentary',
-        'drama',
-        'family',
-        'fantasy',
-        'film_noir',
-        'game_show',
-        'history',
-        'horror',
-        'music',
-        'musical',
-        'mystery',
-        'news',
-        'reality_tv',
-        'romance',
-        'sci_fi',
-        'sport',
-        'talk_show',
-        'thriller',
-        'war',
-        'western']
-    
+    genres = ['action', 'adventure', 'animation', 'biography', 'comedy', 'crime', 'documentary', 'drama', 'family', 'fantasy', 'film_noir', 'game_show', 'history',
+              'horror', 'music', 'musical', 'mystery', 'news', 'reality_tv', 'romance', 'sci_fi', 'sport', 'talk_show', 'thriller', 'war', 'western']
     name = "movies"
     start_urls = []
-    
     for i in genres:
         url = 'http://www.imdb.com/search/title?genres={0}&num_votes=10000,&title_type=feature&sort=user_rating,desc' 
         start_urls.append(url.format(i)) 
@@ -90,9 +70,10 @@ class MoviesSpider(scrapy.Spider):
             item['minutes'] = minutes(i.css('div[class="lister-item-content"]').css('p[class="text-muted "]').css('span[class="runtime"]::text').extract())
             item['rate'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-imdb-rating"]').css('strong::text').extract())
             item['metascore'] = extractAndClean(i.css('div[class="lister-item-content"]').css('div[class="ratings-bar"]').css('div[class="inline-block ratings-metascore"]').css('span[class="metascore  favorable"]::text').extract())
-            item['director'] = extractAndClean(i.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract())
             a = i.css('div[class="lister-item-content"]').css('p[class=""]').css('a::text').extract()
             b = i.css('div[class="lister-item-content"]').css('p[class=""]::text').extract()
-            item['artists'] = artists(a, b)
+            c = artists(a, b)
+            item['directors'] = directors(c)
+            item['stars'] = stars(c)
             item['votes'] = votes(i.css('div[class="lister-item-content"]').css('p[class="sort-num_votes-visible"]').css('span::text').extract())
             yield item

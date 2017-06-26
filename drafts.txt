@@ -1,3 +1,5 @@
 scrapy shell "http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced"
 
 response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
+
+scrapy crawl movies -o _movies.json

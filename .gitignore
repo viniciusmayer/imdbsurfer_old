@@ -1,8 +1,12 @@
 .project
 .pydevproject
-bin/
-include/
-lib/
+bin
+include
+lib
 pip-selfcheck.json
 *.pyc
 .settings
+Include
+Lib
+Scripts
+tcl

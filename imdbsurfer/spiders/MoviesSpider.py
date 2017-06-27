@@ -26,10 +26,12 @@ def artists(a, b):
     return list(itertools.chain.from_iterable(zip(_b,_a)))
 
 def directors(value):
-    return value[1:value.index('Stars:')]
+    _value = value[1:value.index('Stars:')]
+    return [v for v in _value if v != ',']
 
 def stars(value):
-    return value[value.index('Stars:') + 1:len(value)]
+    _value = value[value.index('Stars:') + 1:len(value)]
+    return [v for v in _value if v != ',']
 
 def genres(value):
     _value = []

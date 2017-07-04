@@ -32,20 +32,20 @@
 
 import psycopg2
 
-selectUserByEmail = 'select id from auth_user where email = ?'
+selectUserByEmail = 'select id from auth_user where email = %s'
 
-selectGenreByName = 'select id from imdbsurfer_genre where name = ?'
+selectGenreByName = 'select id from imdbsurfer_genre where name = %s'
 insertIntoGenre = 'INSERT INTO imdbsurfer_genre(dh_create, dh_update, name, user_create_id, user_update_id)'\
-    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+    ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
 
-selectArtistByName = 'SELECT id FROM imdbsurfer_artist where name = ?'
+selectArtistByName = 'SELECT id FROM imdbsurfer_artist where name = %s'
 insertIntoArtist = 'INSERT INTO imdbsurfer_artist(dh_create, dh_update, name, user_create_id, user_update_id)'\
-    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+    ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
-selectRoleByName = 'SELECT id FROM imdbsurfer_role where name = ?'
+selectRoleByName = 'SELECT id FROM imdbsurfer_role where name = %s'
 insertIntoRole = 'INSERT INTO imdbsurfer_role(dh_create, dh_update, name, user_create_id, user_update_id)'\
-    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+    ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
 selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id in ({0}) and role_id in ({1})'.format(selectArtistByName, selectRoleByName)
 insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id)'\
@@ -60,9 +60,9 @@ class ImdbsurferPipeline(object):
     def process_item(self, item, spider):
         for genre in item['genres']:
             try:
-                self.cursor.execute(selectGenreByName, genre)
+                self.cursor.execute(selectGenreByName, [genre])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoGenre, genre, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoGenre, [genre, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.connection.commit()
             except Exception as e:
                 print(e)
@@ -70,43 +70,43 @@ class ImdbsurferPipeline(object):
         roles = ['Director', 'Star']
         for role in roles:
             try:
-                self.cursor.execute(selectRoleByName, role)
+                self.cursor.execute(selectRoleByName, [role])
                 if self.cursor.rowcount == 0:
-                    self.cursor.execute(insertIntoRole, role, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoRole, [role, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.cursor.commit()
             except Exception as e:
                 print(e)                            
                 
         for director in item['directors']:
             try:
-                self.cursor.execute(selectArtistByName, director)
+                self.cursor.execute(selectArtistByName, [director])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtist, director, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoArtist, [director, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.connection.commit()
             except Exception as e:
                 print(e)
 
             try:
-                self.cursor.execute(selectArtistRole, director, roles[0])
+                self.cursor.execute(selectArtistRole, [director, roles[0]])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole, director, roles[0], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoArtistRole, [director, roles[0], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.connection.commit()
             except Exception as e:
                 print(e)
 
         for star in item['stars']:
             try:
-                self.cursor.execute(selectArtistByName, star)
+                self.cursor.execute(selectArtistByName, [star])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtist, star, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoArtist, [star, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.connection.commit()
             except Exception as e:
                 print(e)
 
             try:
-                self.cursor.execute(selectArtistRole, star, roles[1])
+                self.cursor.execute(selectArtistRole, [star, roles[1]])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole, star, roles[1], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.cursor.execute(insertIntoArtistRole, [star, roles[1], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com'])
                     self.connection.commit()
             except Exception as e:
                 print(e)

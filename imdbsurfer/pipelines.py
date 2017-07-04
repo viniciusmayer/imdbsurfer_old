@@ -51,8 +51,48 @@ selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id in ({0}
 insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistByName, selectRoleByName, selectUserByEmail, selectUserByEmail)
 
-class ImdbsurferPipeline(object):
+class CleanPipeline(object):
+    def __init__(self):
+        self.connection = psycopg2.connect('dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer''')
+        self.cursor = self.connection.cursor()
+          
+    def process_item(self, item, spider):
+        item['index'] = self.index(item['index'])
+        item['votes'] = self.votes(item['votes'])
+        item['year'] = self.year(item['year'])
+        item['minutes'] = self.minutes(item['minutes'])
+        item['link'] = self.link(item['link'])
+        item['name'] = self.extractAndClean(item['name'])
+        item['rate'] = self.extractAndClean(item['rate'])
+        item['metascore'] = self.extractAndClean(item['metascore'])
+        return item
+
+    def link(self, value):
+        return value[0][:value[0].find('?') - 1]
+
+    def minutes(self, value):
+        return self.clean(value[0].split()[0])
+
+    def year(self, value):
+        return self.extractAndClean(value).replace('(', '').replace(')', '')
+
+    def votes(self, value):
+        return self.extractAndClean(value, 1)
+
+    def index(self, value):
+        return self.extractAndClean(value).replace('.', '')
     
+    def extractAndClean(self, value, pos=0):
+        if value is not None and len(value) > 0:
+            return self.clean(value[pos])
+        return None
+    
+    def clean(self, value):
+        if value is not None:
+            return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
+        return None
+
+class GenrePipeline(object):
     def __init__(self):
         self.connection = psycopg2.connect('dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer''')
         self.cursor = self.connection.cursor()
@@ -66,7 +106,15 @@ class ImdbsurferPipeline(object):
                     self.connection.commit()
             except Exception as e:
                 print(e)
-        
+                
+        return item
+    
+class RolePipeline(object):
+    def __init__(self):
+        self.connection = psycopg2.connect('dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer''')
+        self.cursor = self.connection.cursor()
+          
+    def process_item(self, item, spider):
         roles = ['Director', 'Star']
         for role in roles:
             try:
@@ -76,7 +124,16 @@ class ImdbsurferPipeline(object):
                     self.cursor.commit()
             except Exception as e:
                 print(e)                            
-                
+
+        return item
+
+class Artist_ArtistRolePipeline(object):
+    def __init__(self):
+        self.connection = psycopg2.connect('dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer''')
+        self.cursor = self.connection.cursor()
+          
+    def process_item(self, item, spider):
+        roles = ['Director', 'Star']
         for director in item['directors']:
             try:
                 self.cursor.execute(selectArtistByName, [director])

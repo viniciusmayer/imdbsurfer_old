@@ -32,19 +32,24 @@
 
 import psycopg2
 
-selectGenreByName = 'select id from imdbsurfer_genre where name = ''\'{0}''\';'
-insertIntoGenre = 'INSERT INTO imdbsurfer_genre(dh_create, dh_update, name, user_create_id, user_update_id) VALUES (now(), now(), ''\'{0}''\', ({1}), ({2}));'
-selectUserByEmail = 'select id from auth_user where email = ''\'viniciusmayer@gmail.com''\''
+selectUserByEmail = 'select id from auth_user where email = ?'
+
+selectGenreByName = 'select id from imdbsurfer_genre where name = ?'
+insertIntoGenre = 'INSERT INTO imdbsurfer_genre(dh_create, dh_update, name, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
 
-selectArtistByName = 'SELECT id FROM imdbsurfer_artist where name = ''\'{0}''\';'
-insertIntoArtist = 'INSERT INTO imdbsurfer_artist(dh_create, dh_update, name, user_create_id, user_update_id) VALUES (now(), now(), ''\'{0}''\', ({1}), ({2}));'
+selectArtistByName = 'SELECT id FROM imdbsurfer_artist where name = ?'
+insertIntoArtist = 'INSERT INTO imdbsurfer_artist(dh_create, dh_update, name, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
-selectRoleByName = 'SELECT id FROM imdbsurfer_role where name = ''\'{0}''\';'
-insertIntoRole = 'INSERT INTO imdbsurfer_role(dh_create, dh_update, name, user_create_id, user_update_id) VALUES (now(), now(), ''\'{0}''\', ({1}), ({2}));'
+selectRoleByName = 'SELECT id FROM imdbsurfer_role where name = ?'
+insertIntoRole = 'INSERT INTO imdbsurfer_role(dh_create, dh_update, name, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), ?, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
-selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id = ({0}) and role_id = ({1});'
-insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id) VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}));'
+selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id in ({0}) and role_id in ({1})'.format(selectArtistByName, selectRoleByName)
+insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistByName, selectRoleByName, selectUserByEmail, selectUserByEmail)
 
 class ImdbsurferPipeline(object):
     
@@ -55,9 +60,9 @@ class ImdbsurferPipeline(object):
     def process_item(self, item, spider):
         for genre in item['genres']:
             try:
-                self.cursor.execute(selectGenreByName.format(genre))
+                self.cursor.execute(selectGenreByName, genre)
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoGenre.format(genre, selectUserByEmail, selectUserByEmail))
+                    self.cursor.execute(insertIntoGenre, genre, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
                     self.connection.commit()
             except Exception as e:
                 print(e)
@@ -65,35 +70,43 @@ class ImdbsurferPipeline(object):
         roles = ['Director', 'Star']
         for role in roles:
             try:
-                self.cursor.execute(selectRoleByName.format(role))
+                self.cursor.execute(selectRoleByName, role)
                 if self.cursor.rowcount == 0:
-                    self.cursor.execute(insertIntoRole.format(role, selectUserByEmail, selectUserByEmail))
+                    self.cursor.execute(insertIntoRole, role, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
                     self.cursor.commit()
             except Exception as e:
                 print(e)                            
                 
         for director in item['directors']:
             try:
-                self.cursor.execute(selectArtistByName.format(director))
+                self.cursor.execute(selectArtistByName, director)
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtist.format(director, selectUserByEmail, selectUserByEmail))
-                    self.connection.commit()
-                self.cursor.execute(selectArtistRole.format(selectArtistByName.format(director), selectRoleByName.format(roles[0])))
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole.format(selectArtistByName.format(director), selectRoleByName.format(roles[0]), selectUserByEmail, selectUserByEmail))
+                    self.cursor.execute(insertIntoArtist, director, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
                     self.connection.commit()
             except Exception as e:
                 print(e)
-        
+
+            try:
+                self.cursor.execute(selectArtistRole, director, roles[0])
+                if (self.cursor.rowcount == 0):
+                    self.cursor.execute(insertIntoArtistRole, director, roles[0], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
+                    self.connection.commit()
+            except Exception as e:
+                print(e)
+
         for star in item['stars']:
             try:
-                self.cursor.execute(selectArtistByName.format(star))
+                self.cursor.execute(selectArtistByName, star)
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtist.format(star, selectUserByEmail, selectUserByEmail))
+                    self.cursor.execute(insertIntoArtist, star, 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
                     self.connection.commit()
-                self.cursor.execute(selectArtistRole.format(selectArtistByName.format(star), selectRoleByName.format(roles[1])))
+            except Exception as e:
+                print(e)
+
+            try:
+                self.cursor.execute(selectArtistRole, star, roles[1])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole.format(selectArtistByName.format(star), selectRoleByName.format(roles[1]), selectUserByEmail, selectUserByEmail))
+                    self.cursor.execute(insertIntoArtistRole, star, roles[1], 'viniciusmayer@gmail.com', 'viniciusmayer@gmail.com')
                     self.connection.commit()
             except Exception as e:
                 print(e)

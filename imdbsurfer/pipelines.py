@@ -6,17 +6,10 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 #{
-#    "index": "5",
-#    "year": "1999",
-#    "link": "/title/tt0133093",
-#    "name": "The Matrix",
 #    "genres": [
 #        "Action",
 #        "Sci-Fi"
 #    ],
-#    "minutes": "136",
-#    "rate": "8.7",
-#    "metascore": "73",
 #    "directors": [
 #        "Lana Wachowski",
 #        "Lilly Wachowski"
@@ -27,7 +20,6 @@
 #        "Carrie-Anne Moss",
 #        "Hugo Weaving"
 #    ],
-#    "votes": "1,314,055"
 #},
 
 import psycopg2, itertools
@@ -56,6 +48,10 @@ insertIntoMovie = \
     'INSERT INTO imdbsurfer_movie(name, year, index, rate, votes, link, metascore, minutes, watch, watched, dh_create, dh_update, user_create_id, user_update_id)'\
     ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, False, False, now(), now(), ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
+selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre where genre_id = ({0}) and movie_id = ({1})'.format(selectGenreByName, selectMovie)
+insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
+    'VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovie, selectUserByEmail, selectUserByEmail)
+
 roles = ['Director', 'Star']
 psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer'''
 
@@ -65,65 +61,51 @@ class CleanPipeline(object):
         self.cursor = self.connection.cursor()
           
     def process_item(self, item, spider):
-        item['index'] = self.index(item['index'])
-        item['votes'] = self.votes(item['votes'])
-        item['year'] = self.year(item['year'])
-        item['minutes'] = self.minutes(item['minutes'])
-        item['link'] = self.link(item['link'])
-        item['genres'] = self.genres(item['genres'])
-        item['name'] = self.extractAndClean(item['name'])
-        item['rate'] = self.extractAndClean(item['rate'])
-        item['metascore'] = self.extractAndClean(item['metascore'])
-        c = self.artists(item['artistsa'], item['artistsb'])
-        item['directors'] = self.directors(c)
-        item['stars'] = self.stars(c)
+        item['index'] = self.cleanInteger(item['index'][0])
+        item['votes'] = self.cleanInteger(item['votes'][1])
+        item['year'] = self.cleanInteger(item['year'][0])
+        item['minutes'] = self.cleanInteger(item['minutes'][0])
+        item['link'] = self.cleanLink(item['link'][0])
+        item['genres'] = self.cleanGenres(item['genres'][0])
+        item['name'] = self.cleanString(item['name'][0])
+        item['rate'] = self.cleanString(item['rate'][0])
+        item['metascore'] = self.cleanInteger(item['metascore'][0]) if len(item['metascore']) > 0 else None
+        c = self.cleanArtists(item['artistsa'], item['artistsb'])
+        item['directors'] = self.cleanDirectors(c)
+        item['stars'] = self.cleanStars(c)
         return item
 
-    def artists(self, a, b):
+    def cleanArtists(self, a, b):
         _a = []
         for i in a:
-            _a.append(self.clean(i))
+            _a.append(self.cleanString(i))
         _b = []
         for i in b:
-            _b.append(self.clean(i))
+            _b.append(self.cleanString(i))
         _b.remove('')
         return list(itertools.chain.from_iterable(zip(_b,_a)))
     
-    def directors(self, value):
+    def cleanDirectors(self, value):
         _value = value[1:value.index('Stars:')]
         return [v for v in _value if v != ',']
     
-    def stars(self, value):
+    def cleanStars(self, value):
         _value = value[value.index('Stars:') + 1:len(value)]
         return [v for v in _value if v != ',']
 
-    def genres(self, value):
+    def cleanGenres(self, value):
         _value = []
-        for i in value[0].split(","):
-            _value.append(self.clean(i))
+        for i in value.split(","):
+            _value.append(self.cleanString(i))
         return _value
 
-    def link(self, value):
-        return value[0][:value[0].find('?') - 1]
+    def cleanLink(self, value):
+        return value[:value.find('?') - 1]
 
-    def minutes(self, value):
-        return self.clean(value[0].split()[0])
-
-    def year(self, value):
-        return self.extractAndClean(value).replace('(', '').replace(')', '')
-
-    def votes(self, value):
-        return self.extractAndClean(value, 1).replace(',', '')
-
-    def index(self, value):
-        return self.extractAndClean(value).replace('.', '')
+    def cleanInteger(self, value):
+        return ''.join(i for i in value if i.isdigit())
     
-    def extractAndClean(self, value, pos=0):
-        if value is not None and len(value) > pos:
-            return self.clean(value[pos])
-        return None
-    
-    def clean(self, value):
+    def cleanString(self, value):
         if value is not None:
             return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
         return None
@@ -234,5 +216,17 @@ class MoviePipeline(object):
             print('##### ERROR: ')
             print(e)
             print(self.cursor.mogrify(insertIntoMovie, [name, year, index, rate, votes, link, metascore, minutes, email, email]))
-            
+        
+        genres = item['genres']
+        for genre in genres:
+            try:
+                self.cursor.execute(selectMovieGenre, [genre, name, year, link, minutes])
+                if (self.cursor.rowcount == 0):
+                    self.cursor.execute(insertIntoMovieGenre, [genre, name, year, link, minutes, email, email])
+                    self.connection.commit()
+            except Exception as e:
+                print('##### ERROR: ')
+                print(e)
+                print(self.cursor.mogrify(insertIntoMovieGenre, [genre, name, year, link, minutes, email, email]))
+        
         return item

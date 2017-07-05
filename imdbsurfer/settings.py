@@ -69,7 +69,7 @@ ITEM_PIPELINES = {
     'imdbsurfer.pipelines.GenrePipeline': 1,
     'imdbsurfer.pipelines.RolePipeline': 2,
     'imdbsurfer.pipelines.Artist_ArtistRolePipeline': 3,
-    
+    'imdbsurfer.pipelines.MoviePipeline': 4,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

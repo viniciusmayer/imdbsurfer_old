@@ -18,5 +18,7 @@ class Movie(scrapy.Item):
     rate = scrapy.Field()
     metascore = scrapy.Field()
     votes = scrapy.Field()
+    artistsa = scrapy.Field()
+    artistsb = scrapy.Field()
     directors = scrapy.Field()
     stars = scrapy.Field()

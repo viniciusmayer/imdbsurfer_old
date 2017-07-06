@@ -2,4 +2,29 @@ scrapy shell "http://www.imdb.com/search/title?genres=western,adventure&num_vote
 
 response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
 
-scrapy crawl movies -o _movies.json
+scrapy crawl movies > movies.log 2>&1
+
+{
+	"index": "5",
+	"year": "1999",
+	"link": "/title/tt0133093",
+	"name": "The Matrix",
+	"genres": [
+		"Action",
+		"Sci-Fi"
+	],
+	"minutes": "136",
+	"rate": "8.7",
+	"metascore": "73",
+	"directors": [
+		"Lana Wachowski",
+		"Lilly Wachowski"
+	],
+	"stars": [
+		"Keanu Reeves",
+		"Laurence Fishburne",
+		"Carrie-Anne Moss",
+		"Hugo Weaving"
+	],
+	"votes": "1,314,055"
+},

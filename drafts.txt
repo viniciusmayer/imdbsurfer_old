@@ -1,33 +1,32 @@
 scrapy shell "http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced"
-
 response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
 
 scrapy crawl movies > movies.log 2>&1
 
-{
-	"index": "5",
-	"year": "1999",
-	"link": "/title/tt0133093",
-	"name": "The Matrix",
-	"genres": [
-		"Action",
-		"Sci-Fi"
-	],
-	"minutes": "136",
-	"rate": "8.7",
-	"metascore": "73",
-	"directors": [
-		"Lana Wachowski",
-		"Lilly Wachowski"
-	],
-	"stars": [
-		"Keanu Reeves",
-		"Laurence Fishburne",
-		"Carrie-Anne Moss",
-		"Hugo Weaving"
-	],
-	"votes": "1,314,055"
-},
+[
+	{
+		"genre": "action",
+		"index": "1",
+		"year": "2008",
+		"link": "http://www.imdb.com/title/tt0468569",
+		"name": "The Dark Knight",
+		"genres": [
+			"Action",
+			"Crime",
+			"Drama"
+		],
+		"minutes": "152",
+		"rate": "9.0",
+		"metascore": "82",
+		"artistsa": [
+			"Christopher Nolan",
+			"Christian Bale",
+			"Heath Ledger",
+			"Aaron Eckhart",
+			"Michael Caine"
+		],
+	}
+]
 
 truncate imdbsurfer_artist cascade;
 truncate imdbsurfer_artistrole cascade;

@@ -28,8 +28,8 @@ insertIntoMovie = \
     ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, False, False, now(), now(), ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
 selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre where genre_id = ({0}) and movie_id = ({1})'.format(selectGenreByName, selectMovie)
-insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
-    'VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovie, selectUserByEmail, selectUserByEmail)
+insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(index, dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
+    'VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovie, selectUserByEmail, selectUserByEmail)
 
 selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole where "artistRole_id" = ({0}) and movie_id = ({1})'.format(selectArtistRole, selectMovie)
 insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, dh_update, "artistRole_id", movie_id, user_create_id, user_update_id)'\
@@ -56,7 +56,11 @@ class CleanPipeline(object):
         c = self.cleanArtists(item['artistsa'], item['artistsb'])
         item['directors'] = self.cleanDirectors(c)
         item['stars'] = self.cleanStars(c)
+        item['genre'] = self.cleanGenre(item['genre'])
         return item
+
+    def cleanGenre(self, value):
+        return value[value.find('genres') + 7:value.find('num_votes') - 1]
 
     def cleanArtists(self, a, b):
         _a = []
@@ -66,7 +70,7 @@ class CleanPipeline(object):
         for i in b:
             _b.append(self.cleanString(i))
         _b.remove('')
-        return list(itertools.chain.from_iterable(zip(_b,_a)))
+        return list(itertools.chain.from_iterable(zip(_b, _a)))
     
     def cleanDirectors(self, value):
         _value = value[1:value.index('Stars:')]
@@ -195,6 +199,7 @@ class MoviePipeline(object):
         link = item['link']
         metascore = item['metascore']
         minutes = item['minutes']
+        _genre = item['genre']
         
         try:
             self.cursor.execute(selectMovie, [name, year, link, minutes])
@@ -211,7 +216,7 @@ class MoviePipeline(object):
             try:
                 self.cursor.execute(selectMovieGenre, [genre, name, year, link, minutes])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoMovieGenre, [genre, name, year, link, minutes, email, email])
+                    self.cursor.execute(insertIntoMovieGenre, [index if genre.lower() == _genre else None, genre, name, year, link, minutes, email, email])
                     self.connection.commit()
             except Exception as e:
                 print('##### MoviePipeline.2.ERROR: ')

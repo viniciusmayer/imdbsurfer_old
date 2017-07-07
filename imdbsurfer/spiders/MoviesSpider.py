@@ -14,6 +14,7 @@ class MoviesSpider(scrapy.Spider):
     def parse(self, response):
         for i in response.css('div[class="lister-item mode-advanced"]'):
             item = items.Movie()
+            item['genre'] = response.url
             item['index'] = i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
             item['year'] = i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-year text-muted unbold"]::text').extract()
             item['link'] = i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('a::attr(href)').extract()

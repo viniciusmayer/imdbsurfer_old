@@ -28,3 +28,11 @@ scrapy crawl movies > movies.log 2>&1
 	],
 	"votes": "1,314,055"
 },
+
+truncate imdbsurfer_artist cascade;
+truncate imdbsurfer_artistrole cascade;
+truncate imdbsurfer_genre cascade;
+truncate imdbsurfer_movie cascade;
+truncate imdbsurfer_movieartistrole cascade;
+truncate imdbsurfer_moviegenre cascade;
+truncate imdbsurfer_role cascade;

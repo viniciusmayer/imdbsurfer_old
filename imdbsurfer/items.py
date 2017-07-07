@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-
-# Define here the models for your scraped items
-#
-# See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
 
-
 class Movie(scrapy.Item):
+    genre = scrapy.Field()
     index = scrapy.Field()
     year = scrapy.Field()
     link = scrapy.Field()

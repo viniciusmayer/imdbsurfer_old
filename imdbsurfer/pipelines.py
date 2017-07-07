@@ -1,26 +1,5 @@
 # -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-
-#{
-#    "genres": [
-#        "Action",
-#        "Sci-Fi"
-#    ],
-#    "directors": [
-#        "Lana Wachowski",
-#        "Lilly Wachowski"
-#    ],
-#    "stars": [
-#        "Keanu Reeves",
-#        "Laurence Fishburne",
-#        "Carrie-Anne Moss",
-#        "Hugo Weaving"
-#    ],
-#},
 
 import psycopg2, itertools
 
@@ -152,7 +131,7 @@ class RolePipeline(object):
 
         return item
 
-class Artist_ArtistRolePipeline(object):
+class ArtistPipeline(object):
     def __init__(self):
         self.connection = psycopg2.connect(psycopg_connect)
         self.cursor = self.connection.cursor()

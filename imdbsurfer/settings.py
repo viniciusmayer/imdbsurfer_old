@@ -68,7 +68,7 @@ ITEM_PIPELINES = {
     'imdbsurfer.pipelines.CleanPipeline': 0,
     'imdbsurfer.pipelines.GenrePipeline': 1,
     'imdbsurfer.pipelines.RolePipeline': 2,
-    'imdbsurfer.pipelines.Artist_ArtistRolePipeline': 3,
+    'imdbsurfer.pipelines.ArtistPipeline': 3,
     'imdbsurfer.pipelines.MoviePipeline': 4,
 }
 

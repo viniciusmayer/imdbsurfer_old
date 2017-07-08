@@ -6,7 +6,7 @@ class MoviesSpider(scrapy.Spider):
     genres = ['action', 'adventure', 'animation', 'biography', 'comedy', 'crime', 'documentary', 'drama', 'family', 'fantasy', 'film_noir', 'game_show', 'history',
               'horror', 'music', 'musical', 'mystery', 'news', 'reality_tv', 'romance', 'sci_fi', 'sport', 'talk_show', 'thriller', 'war', 'western']
     name = "movies"
-    url = 'http://www.imdb.com/search/title?count=100&genres={0}&num_votes=10000,&title_type=feature&sort=user_rating,desc' 
+    url = 'http://www.imdb.com/search/title?count=100&genres={0}&num_votes=10000,&title_type=feature,documentary&sort=user_rating,desc' 
     start_urls = []
     for i in genres:
         start_urls.append(url.format(i)) 

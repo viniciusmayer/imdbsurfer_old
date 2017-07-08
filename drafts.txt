@@ -3,6 +3,18 @@ response.css('div[class="lister-item-content"]').css('h3[class="lister-item-head
 
 scrapy crawl movies > movies.log 2>&1
 
+feature
+tv_movie
+tv_series
+tv_episode
+tv_special
+mini_series
+documentary
+game
+short
+video
+tvshort
+
 [
 	{
 		"genre": "action",

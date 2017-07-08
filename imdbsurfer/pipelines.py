@@ -22,18 +22,21 @@ selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id in ({0}
 insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistByName, selectRoleByName, selectUserByEmail, selectUserByEmail)
 
-selectMovie = 'SELECT id FROM imdbsurfer_movie where name = %s and year = %s and link = %s and minutes = %s' 
+selectMovieByLink = 'SELECT id FROM imdbsurfer_movie where link = %s' 
 insertIntoMovie = \
-    'INSERT INTO imdbsurfer_movie(name, year, index, rate, votes, link, metascore, minutes, watch, watched, dh_create, dh_update, user_create_id, user_update_id)'\
-    ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, False, False, now(), now(), ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+    'INSERT INTO imdbsurfer_movie(name, year, rate, votes, link, metascore, minutes, watch, watched, dh_create, dh_update, user_create_id, user_update_id)'\
+    ' VALUES (%s, %s, %s, %s, %s, %s, %s, False, False, now(), now(), ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+updateMovie = 'UPDATE imdbsurfer_movie SET dh_update=now(), rate=%s, votes=%s, metascore=%s, user_update_id=({0}) WHERE link=%s'.format(selectUserByEmail)
 
-selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre where genre_id = ({0}) and movie_id = ({1})'.format(selectGenreByName, selectMovie)
+selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre where genre_id = ({0}) and movie_id = ({1})'.format(selectGenreByName, selectMovieByLink)
 insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(index, dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
-    'VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovie, selectUserByEmail, selectUserByEmail)
+    'VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovieByLink, selectUserByEmail, selectUserByEmail)
+updateMovieGenre = 'UPDATE imdbsurfer_moviegenre SET dh_update=now(), index=%s, user_update_id=({0})'\
+    ' WHERE genre_id=({1}) and movie_id=({2})'.format(selectUserByEmail, selectGenreByName, selectMovieByLink)
 
-selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole where "artistRole_id" = ({0}) and movie_id = ({1})'.format(selectArtistRole, selectMovie)
+selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole where "artistRole_id" = ({0}) and movie_id = ({1})'.format(selectArtistRole, selectMovieByLink)
 insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, dh_update, "artistRole_id", movie_id, user_create_id, user_update_id)'\
-    ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistRole, selectMovie, selectUserByEmail, selectUserByEmail)
+    ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistRole, selectMovieByLink, selectUserByEmail, selectUserByEmail)
 
 roles = ['Director', 'Star']
 psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer'''
@@ -73,11 +76,33 @@ class CleanPipeline(object):
         return list(itertools.chain.from_iterable(zip(_b, _a)))
     
     def cleanDirectors(self, value):
-        _value = value[1:value.index('Stars:')]
+        end = None
+        try:
+            end = value.index('Stars:') 
+        except ValueError:
+            pass
+        if (end is None):
+            try:
+                end = value.index('Star:')
+            except ValueError:
+                pass
+        _value = value[1:end]
         return [v for v in _value if v != ',']
     
     def cleanStars(self, value):
-        _value = value[value.index('Stars:') + 1:len(value)]
+        begin = None
+        try:
+            begin = value.index('Stars:') 
+        except ValueError:
+            pass
+        if (begin is None):
+            try:
+                begin = value.index('Star:')
+            except ValueError:
+                pass
+        if (begin is None):
+            return None
+        _value = value[begin + 1:len(value)]
         return [v for v in _value if v != ',']
 
     def cleanGenres(self, value):
@@ -93,7 +118,7 @@ class CleanPipeline(object):
         return ''.join(i for i in value if i.isdigit())
     
     def cleanString(self, value):
-        if value is not None:
+        if (value is not None):
             return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
         return None
 
@@ -104,15 +129,10 @@ class GenrePipeline(object):
           
     def process_item(self, item, spider):
         for genre in item['genres']:
-            try:
-                self.cursor.execute(selectGenreByName, [genre])
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoGenre, [genre, email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### GenrePipeline.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoGenre, [genre, email, email]))
+            self.cursor.execute(selectGenreByName, [genre])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoGenre, [genre, email, email])
+                self.connection.commit()
                 
         return item
     
@@ -123,15 +143,10 @@ class RolePipeline(object):
           
     def process_item(self, item, spider):
         for role in roles:
-            try:
-                self.cursor.execute(selectRoleByName, [role])
-                if self.cursor.rowcount == 0:
-                    self.cursor.execute(insertIntoRole, [role, email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### RolePipeline.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoRole, [role, email, email]))
+            self.cursor.execute(selectRoleByName, [role])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoRole, [role, email, email])
+                self.connection.commit()
 
         return item
 
@@ -142,46 +157,27 @@ class ArtistPipeline(object):
           
     def process_item(self, item, spider):
         for director in item['directors']:
-            try:
-                self.cursor.execute(selectArtistByName, [director])
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtist, [director, email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### Artist_ArtistRolePipeline.1.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoArtist, [director, email, email]))
+            self.cursor.execute(selectArtistByName, [director])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoArtist, [director, email, email])
+                self.connection.commit()
 
-            try:
-                self.cursor.execute(selectArtistRole, [director, roles[0]])
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole, [director, roles[0], email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### Artist_ArtistRolePipeline.2.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoArtistRole, [director, roles[0], email, email]))
+            self.cursor.execute(selectArtistRole, [director, roles[0]])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoArtistRole, [director, roles[0], email, email])
+                self.connection.commit()
 
-        for star in item['stars']:
-            try:
+        if (item['stars'] is not None):
+            for star in item['stars']:
                 self.cursor.execute(selectArtistByName, [star])
                 if (self.cursor.rowcount == 0):
                     self.cursor.execute(insertIntoArtist, [star, email, email])
                     self.connection.commit()
-            except Exception as e:
-                print('##### Artist_ArtistRolePipeline.3.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoArtist, [star, email, email]))
-
-            try:
+    
                 self.cursor.execute(selectArtistRole, [star, roles[1]])
                 if (self.cursor.rowcount == 0):
                     self.cursor.execute(insertIntoArtistRole, [star, roles[1], email, email])
                     self.connection.commit()
-            except Exception as e:
-                print('##### Artist_ArtistRolePipeline.4.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoArtistRole, [star, roles[1], email, email]))
 
         return item
 
@@ -191,60 +187,39 @@ class MoviePipeline(object):
         self.cursor = self.connection.cursor()
           
     def process_item(self, item, spider):
-        name = item['name']
-        year = item['year']
-        index = item['index']
         rate = item['rate']
         votes = item['votes']
         link = item['link']
         metascore = item['metascore']
-        minutes = item['minutes']
-        _genre = item['genre']
+        genre = item['genre']
         
-        try:
-            self.cursor.execute(selectMovie, [name, year, link, minutes])
+        self.cursor.execute(selectMovieByLink, [link])
+        if (self.cursor.rowcount == 0):
+            self.cursor.execute(insertIntoMovie, [item['name'], item['year'], rate, votes, link, metascore, item['minutes'], email, email])
+        else:
+            self.cursor.execute(updateMovie, [rate, votes, metascore, email, link])
+        self.connection.commit()
+        
+        for _genre in item['genres']:
+            self.cursor.execute(selectMovieGenre, [_genre, link])
+            index = item['index'] if _genre.lower() == genre else None
             if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoMovie, [name, year, index, rate, votes, link, metascore, minutes, email, email])
+                self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, email, email])
+            if (_genre.lower() == genre):
+                self.cursor.execute(updateMovieGenre, [index, email, _genre, link]) 
+            self.connection.commit()
+        
+        for director in item['directors']:
+            self.cursor.execute(selectMovieArtistRole, [director, roles[0], link])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoMovieArtistRole, [director, roles[0], link, email, email])
                 self.connection.commit()
-        except Exception as e:
-            print('##### MoviePipeline.1.ERROR: ')
-            print(e)
-            print(self.cursor.mogrify(insertIntoMovie, [name, year, index, rate, votes, link, metascore, minutes, email, email]))
         
-        genres = item['genres']
-        for genre in genres:
-            try:
-                self.cursor.execute(selectMovieGenre, [genre, name, year, link, minutes])
+        if (item['stars'] is not None):
+            for star in item['stars']:
+                self.cursor.execute(selectMovieArtistRole, [star, roles[1], link])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoMovieGenre, [index if genre.lower() == _genre else None, genre, name, year, link, minutes, email, email])
+                    self.cursor.execute(insertIntoMovieArtistRole, [star, roles[1], link, email, email])
                     self.connection.commit()
-            except Exception as e:
-                print('##### MoviePipeline.2.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoMovieGenre, [genre, name, year, link, minutes, email, email]))
-        
-        directors = item['directors']
-        for director in directors:
-            try:
-                self.cursor.execute(selectMovieArtistRole, [director, roles[0], name, year, link, minutes])
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoMovieArtistRole, [director, roles[0], name, year, link, minutes, email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### MoviePipeline.3.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoMovieArtistRole, [director, roles[0], name, year, link, minutes, email, email]))
-        
-        stars = item['stars']
-        for star in stars:
-            try:
-                self.cursor.execute(selectMovieArtistRole, [star, roles[1], name, year, link, minutes])
-                if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoMovieArtistRole, [star, roles[1], name, year, link, minutes, email, email])
-                    self.connection.commit()
-            except Exception as e:
-                print('##### MoviePipeline.4.ERROR: ')
-                print(e)
-                print(self.cursor.mogrify(insertIntoMovieArtistRole, [star, roles[1], name, year, link, minutes, email, email]))
 
         return item

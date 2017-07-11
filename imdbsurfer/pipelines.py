@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-import psycopg2, itertools
+import psycopg2
 
 selectUserByEmail = 'select id from auth_user where email = %s'
 email = 'viniciusmayer@gmail.com'
@@ -38,11 +38,12 @@ selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre'\
     ' where genre_id = ({0})'\
         ' and movie_id = ({1})'\
         ' and type_id = ({2})'.format(selectGenreByName, selectMovieByLink, selectTypeByName)
-insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(index, dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
-    ' VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}), ({4}))'.format(selectGenreByName, selectMovieByLink, selectUserByEmail, selectUserByEmail)
+insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(dh_create, dh_update, index, genre_id, movie_id, type_id, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), %s, ({0}), ({1}), ({2}), ({3}), ({4}))'.format(selectGenreByName, selectMovieByLink, selectTypeByName, selectUserByEmail, selectUserByEmail)
 updateMovieGenre = 'UPDATE imdbsurfer_moviegenre SET dh_update=now(), index=%s, user_update_id=({0})'\
     ' WHERE genre_id=({1})'\
-        ' and movie_id=({2})'.format(selectUserByEmail, selectGenreByName, selectMovieByLink)
+        ' and movie_id=({2})'\
+        ' and type_id = ({2})'.format(selectUserByEmail, selectGenreByName, selectMovieByLink, selectTypeByName)
 
 selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole'\
     ' where "artistRole_id" = ({0})'\
@@ -53,102 +54,17 @@ insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, d
 roles = ['Director', 'Star']
 psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''viniciusmayer'''
 
-class CleanPipeline(object):
-    def __init__(self):
-        self.connection = psycopg2.connect(psycopg_connect)
-        self.cursor = self.connection.cursor()
-          
-    def process_item(self, item, spider):
-        item['index'] = self.cleanInteger(item['index'][0])
-        item['votes'] = self.cleanInteger(item['votes'][1])
-        item['year'] = self.cleanInteger(item['year'][0])
-        item['minutes'] = self.cleanInteger(item['minutes'][0])
-        item['link'] = self.getLink(item['link'][0])
-        item['genres'] = self.getGenres(item['genres'][0])
-        item['name'] = self.cleanString(item['name'][0])
-        item['rate'] = self.cleanString(item['rate'][0])
-        item['metascore'] = self.cleanInteger(item['metascore'][0]) if len(item['metascore']) > 0 else None
-        c = self.getArtists(item['artistsa'], item['artistsb'])
-        item['directors'] = self.getDirectors(c)
-        item['stars'] = self.getStars(c)
-        item['genre'] = self.getGenre(item['url'])
-        item['type'] = self.getType(item['url'])
-        return item
-
-    def getGenre(self, value):
-        return value[value.find('genres') + 7:value.find('num_votes') - 1]
-
-    def getType(self, value):
-        return value[value.find('title_type') + 11:value.find('sort') - 1]
-
-    def getArtists(self, a, b):
-        _a = []
-        for i in a:
-            _a.append(self.cleanString(i))
-        _b = []
-        for i in b:
-            _b.append(self.cleanString(i))
-        _b.remove('')
-        return list(itertools.chain.from_iterable(zip(_b, _a)))
-    
-    def getDirectors(self, value):
-        end = None
-        try:
-            end = value.index('Stars:') 
-        except ValueError:
-            pass
-        if (end is None):
-            try:
-                end = value.index('Star:')
-            except ValueError:
-                pass
-        _value = value[1:end]
-        return [v for v in _value if v != ',']
-    
-    def getStars(self, value):
-        begin = None
-        try:
-            begin = value.index('Stars:') 
-        except ValueError:
-            pass
-        if (begin is None):
-            try:
-                begin = value.index('Star:')
-            except ValueError:
-                pass
-        if (begin is None):
-            return None
-        _value = value[begin + 1:len(value)]
-        return [v for v in _value if v != ',']
-
-    def getGenres(self, value):
-        _value = []
-        for i in value.split(","):
-            _value.append(self.cleanString(i))
-        return _value
-
-    def getLink(self, value):
-        return 'http://www.imdb.com{0}'.format(value[:value.find('?') - 1])
-
-    def cleanInteger(self, value):
-        return ''.join(i for i in value if i.isdigit())
-    
-    def cleanString(self, value):
-        if (value is not None):
-            return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
-        return None
-
 class TypePipeline(object):
     def __init__(self):
         self.connection = psycopg2.connect(psycopg_connect)
         self.cursor = self.connection.cursor()
     
     def process_item(self, item, spider):
-        for type in item['type']:
-            self.cursor.execute(selectTypeByName, [type.title()])
-            if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoType, [type.title()], email, email)
-                self.connection.commit()
+        type = item['type']
+        self.cursor.execute(selectTypeByName, [type])
+        if (self.cursor.rowcount == 0):
+            self.cursor.execute(insertIntoType, [type, email, email])
+            self.connection.commit()
         
         return item
 
@@ -158,7 +74,7 @@ class GenrePipeline(object):
         self.cursor = self.connection.cursor()
           
     def process_item(self, item, spider):
-        for genre in item['genre']:
+        for genre in item['genres']:
             self.cursor.execute(selectGenreByName, [genre])
             if (self.cursor.rowcount == 0):
                 self.cursor.execute(insertIntoGenre, [genre, email, email])
@@ -232,12 +148,12 @@ class MoviePipeline(object):
         self.connection.commit()
         
         for _genre in item['genres']:
-            self.cursor.execute(selectMovieGenre, [_genre, link])
+            self.cursor.execute(selectMovieGenre, [_genre, link, type])
             index = item['index'] if _genre.lower() == genre else None
             if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, email, email])
+                self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, type, email, email])
             if (_genre.lower() == genre):
-                self.cursor.execute(updateMovieGenre, [index, email, _genre, link]) 
+                self.cursor.execute(updateMovieGenre, [index, email, _genre, link, type]) 
             self.connection.commit()
         
         for director in item['directors']:

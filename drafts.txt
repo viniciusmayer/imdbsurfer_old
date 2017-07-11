@@ -1,7 +1,7 @@
 scrapy shell "http://www.imdb.com/search/title?genres=western,adventure&num_votes=10000,&title_type=feature&sort=user_rating,desc&view=advanced"
 response.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
 
-scrapy crawl movies > movies.log 2>&1
+scrapy crawl movies -o movies.json > movies.log 2>&1
 
 'feature','tv_movie','tv_series','tv_episode','tv_special','mini_series','documentary','game','short','video','tvshort'
 

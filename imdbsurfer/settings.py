@@ -65,11 +65,12 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'imdbsurfer.pipelines.CleanPipeline': 0,
+    'imdbsurfer.pipelines_clean.CleanPipeline': 0,
     'imdbsurfer.pipelines.GenrePipeline': 1,
     'imdbsurfer.pipelines.RolePipeline': 2,
-    'imdbsurfer.pipelines.ArtistPipeline': 3,
-    'imdbsurfer.pipelines.MoviePipeline': 4,
+    'imdbsurfer.pipelines.TypePipeline': 3,
+    'imdbsurfer.pipelines.ArtistPipeline': 4,
+    'imdbsurfer.pipelines.MoviePipeline': 5,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

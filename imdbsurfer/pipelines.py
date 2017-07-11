@@ -14,27 +14,39 @@ selectRoleByName = 'SELECT id FROM imdbsurfer_role where name = %s'
 insertIntoRole = 'INSERT INTO imdbsurfer_role(dh_create, dh_update, name, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
+selectTypeByName = 'select id from imdbsurfer_type where name = %s'
+insertIntoType = 'INSERT INTO imdbsurfer_type(dh_create, dh_update, name, user_create_id, user_update_id)'\
+    ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
+
 selectArtistByName = 'SELECT id FROM imdbsurfer_artist where name = %s'
 insertIntoArtist = 'INSERT INTO imdbsurfer_artist(dh_create, dh_update, name, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), %s, ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
 
-selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole where artist_id in ({0}) and role_id in ({1})'.format(selectArtistByName, selectRoleByName)
+selectArtistRole = 'SELECT id FROM imdbsurfer_artistrole'\
+    ' where artist_id = ({0})'\
+        ' and role_id = ({1})'.format(selectArtistByName, selectRoleByName)
 insertIntoArtistRole = 'INSERT INTO imdbsurfer_artistrole(dh_create, dh_update, artist_id, role_id, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistByName, selectRoleByName, selectUserByEmail, selectUserByEmail)
 
 selectMovieByLink = 'SELECT id FROM imdbsurfer_movie where link = %s' 
-insertIntoMovie = \
-    'INSERT INTO imdbsurfer_movie(name, year, rate, votes, link, metascore, minutes, watch, watched, dh_create, dh_update, user_create_id, user_update_id)'\
+insertIntoMovie = 'INSERT INTO imdbsurfer_movie(name, year, rate, votes, link, metascore, minutes, watch, watched, dh_create, dh_update, user_create_id, user_update_id)'\
     ' VALUES (%s, %s, %s, %s, %s, %s, %s, False, False, now(), now(), ({0}), ({1}))'.format(selectUserByEmail, selectUserByEmail)
-updateMovie = 'UPDATE imdbsurfer_movie SET dh_update=now(), rate=%s, votes=%s, metascore=%s, user_update_id=({0}) WHERE link=%s'.format(selectUserByEmail)
+updateMovie = 'UPDATE imdbsurfer_movie SET dh_update=now(), rate=%s, votes=%s, metascore=%s, user_update_id=({0})'\
+    ' WHERE link=%s'.format(selectUserByEmail)
 
-selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre where genre_id = ({0}) and movie_id = ({1})'.format(selectGenreByName, selectMovieByLink)
+selectMovieGenre = 'SELECT id FROM imdbsurfer_moviegenre'\
+    ' where genre_id = ({0})'\
+        ' and movie_id = ({1})'\
+        ' and type_id = ({2})'.format(selectGenreByName, selectMovieByLink, selectTypeByName)
 insertIntoMovieGenre = 'INSERT INTO imdbsurfer_moviegenre(index, dh_create, dh_update, genre_id, movie_id, user_create_id, user_update_id)'\
-    'VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectGenreByName, selectMovieByLink, selectUserByEmail, selectUserByEmail)
+    ' VALUES (%s, now(), now(), ({0}), ({1}), ({2}), ({3}), ({4}))'.format(selectGenreByName, selectMovieByLink, selectUserByEmail, selectUserByEmail)
 updateMovieGenre = 'UPDATE imdbsurfer_moviegenre SET dh_update=now(), index=%s, user_update_id=({0})'\
-    ' WHERE genre_id=({1}) and movie_id=({2})'.format(selectUserByEmail, selectGenreByName, selectMovieByLink)
+    ' WHERE genre_id=({1})'\
+        ' and movie_id=({2})'.format(selectUserByEmail, selectGenreByName, selectMovieByLink)
 
-selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole where "artistRole_id" = ({0}) and movie_id = ({1})'.format(selectArtistRole, selectMovieByLink)
+selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole'\
+    ' where "artistRole_id" = ({0})'\
+        ' and movie_id = ({1})'.format(selectArtistRole, selectMovieByLink)
 insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, dh_update, "artistRole_id", movie_id, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistRole, selectMovieByLink, selectUserByEmail, selectUserByEmail)
 
@@ -51,21 +63,25 @@ class CleanPipeline(object):
         item['votes'] = self.cleanInteger(item['votes'][1])
         item['year'] = self.cleanInteger(item['year'][0])
         item['minutes'] = self.cleanInteger(item['minutes'][0])
-        item['link'] = self.cleanLink(item['link'][0])
-        item['genres'] = self.cleanGenres(item['genres'][0])
+        item['link'] = self.getLink(item['link'][0])
+        item['genres'] = self.getGenres(item['genres'][0])
         item['name'] = self.cleanString(item['name'][0])
         item['rate'] = self.cleanString(item['rate'][0])
         item['metascore'] = self.cleanInteger(item['metascore'][0]) if len(item['metascore']) > 0 else None
-        c = self.cleanArtists(item['artistsa'], item['artistsb'])
-        item['directors'] = self.cleanDirectors(c)
-        item['stars'] = self.cleanStars(c)
-        item['genre'] = self.cleanGenre(item['genre'])
+        c = self.getArtists(item['artistsa'], item['artistsb'])
+        item['directors'] = self.getDirectors(c)
+        item['stars'] = self.getStars(c)
+        item['genre'] = self.getGenre(item['url'])
+        item['type'] = self.getType(item['url'])
         return item
 
-    def cleanGenre(self, value):
+    def getGenre(self, value):
         return value[value.find('genres') + 7:value.find('num_votes') - 1]
 
-    def cleanArtists(self, a, b):
+    def getType(self, value):
+        return value[value.find('title_type') + 11:value.find('sort') - 1]
+
+    def getArtists(self, a, b):
         _a = []
         for i in a:
             _a.append(self.cleanString(i))
@@ -75,7 +91,7 @@ class CleanPipeline(object):
         _b.remove('')
         return list(itertools.chain.from_iterable(zip(_b, _a)))
     
-    def cleanDirectors(self, value):
+    def getDirectors(self, value):
         end = None
         try:
             end = value.index('Stars:') 
@@ -89,7 +105,7 @@ class CleanPipeline(object):
         _value = value[1:end]
         return [v for v in _value if v != ',']
     
-    def cleanStars(self, value):
+    def getStars(self, value):
         begin = None
         try:
             begin = value.index('Stars:') 
@@ -105,13 +121,13 @@ class CleanPipeline(object):
         _value = value[begin + 1:len(value)]
         return [v for v in _value if v != ',']
 
-    def cleanGenres(self, value):
+    def getGenres(self, value):
         _value = []
         for i in value.split(","):
             _value.append(self.cleanString(i))
         return _value
 
-    def cleanLink(self, value):
+    def getLink(self, value):
         return 'http://www.imdb.com{0}'.format(value[:value.find('?') - 1])
 
     def cleanInteger(self, value):
@@ -122,13 +138,27 @@ class CleanPipeline(object):
             return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
         return None
 
+class TypePipeline(object):
+    def __init__(self):
+        self.connection = psycopg2.connect(psycopg_connect)
+        self.cursor = self.connection.cursor()
+    
+    def process_item(self, item, spider):
+        for type in item['type']:
+            self.cursor.execute(selectTypeByName, [type.title()])
+            if (self.cursor.rowcount == 0):
+                self.cursor.execute(insertIntoType, [type.title()], email, email)
+                self.connection.commit()
+        
+        return item
+
 class GenrePipeline(object):
     def __init__(self):
         self.connection = psycopg2.connect(psycopg_connect)
         self.cursor = self.connection.cursor()
           
     def process_item(self, item, spider):
-        for genre in item['genres']:
+        for genre in item['genre']:
             self.cursor.execute(selectGenreByName, [genre])
             if (self.cursor.rowcount == 0):
                 self.cursor.execute(insertIntoGenre, [genre, email, email])
@@ -192,6 +222,7 @@ class MoviePipeline(object):
         link = item['link']
         metascore = item['metascore']
         genre = item['genre']
+        type = item['type']
         
         self.cursor.execute(selectMovieByLink, [link])
         if (self.cursor.rowcount == 0):

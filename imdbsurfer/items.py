@@ -4,7 +4,9 @@
 import scrapy
 
 class Movie(scrapy.Item):
+    url = scrapy.Field()
     genre = scrapy.Field()
+    type = scrapy.Field()
     index = scrapy.Field()
     year = scrapy.Field()
     link = scrapy.Field()

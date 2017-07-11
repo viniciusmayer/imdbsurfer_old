@@ -5,15 +5,18 @@ from imdbsurfer import items
 class MoviesSpider(scrapy.Spider):
     genres = ['action', 'adventure', 'animation', 'biography', 'comedy', 'crime', 'documentary', 'drama', 'family', 'fantasy', 'film_noir', 'game_show', 'history',
               'horror', 'music', 'musical', 'mystery', 'news', 'reality_tv', 'romance', 'sci_fi', 'sport', 'talk_show', 'thriller', 'war', 'western']
+    types = ['feature','tv_movie','tv_series','tv_episode','tv_special','mini_series','documentary','game','short','video','tvshort']
     name = "movies"
-    url = 'http://www.imdb.com/search/title?count=100&genres={0}&num_votes=10000,&title_type=feature,documentary&sort=user_rating,desc' 
+    url = 'http://www.imdb.com/search/title?count=100&genres={0}&num_votes=10000,&title_type={1}&sort=user_rating,desc' 
     start_urls = []
-    for i in genres:
-        start_urls.append(url.format(i)) 
+    for genre in genres:
+        for type in types:
+            start_urls.append(url.format(genre, type)) 
 
     def parse(self, response):
         for i in response.css('div[class="lister-item mode-advanced"]'):
             item = items.Movie()
+            item['url'] = response.url
             item['genre'] = response.url
             item['index'] = i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-index unbold text-primary"]::text').extract()
             item['year'] = i.css('div[class="lister-item-content"]').css('h3[class="lister-item-header"]').css('span[class="lister-item-year text-muted unbold"]::text').extract()

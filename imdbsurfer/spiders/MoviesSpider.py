@@ -5,7 +5,8 @@ from imdbsurfer import items
 class MoviesSpider(scrapy.Spider):
     genres = ['action', 'adventure', 'animation', 'biography', 'comedy', 'crime', 'documentary', 'drama', 'family', 'fantasy', 'film_noir', 'game_show', 'history',
               'horror', 'music', 'musical', 'mystery', 'news', 'reality_tv', 'romance', 'sci_fi', 'sport', 'talk_show', 'thriller', 'war', 'western']
-    types = ['feature','tv_movie','tv_series','tv_episode','tv_special','mini_series','documentary','game','short','video','tvshort']
+    #'tv_episode', 
+    types = ['feature', 'tv_movie', 'tv_series', 'tv_special', 'mini_series', 'documentary', 'game', 'short', 'video', 'tvshort']
     name = "movies"
     url = 'http://www.imdb.com/search/title?count=100&genres={0}&num_votes=10000,&title_type={1}&sort=user_rating,desc' 
     start_urls = []

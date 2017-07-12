@@ -152,7 +152,7 @@ class MoviePipeline(object):
             index = item['index'] if _genre.lower() == genre else None
             if (self.cursor.rowcount == 0):
                 self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, type, email, email])
-            if (_genre.lower() == genre):
+            else:
                 self.cursor.execute(updateMovieGenre, [index, email, _genre, link, type]) 
             self.connection.commit()
         

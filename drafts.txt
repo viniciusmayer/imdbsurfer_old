@@ -37,3 +37,4 @@ truncate imdbsurfer_movie cascade;
 truncate imdbsurfer_movieartistrole cascade;
 truncate imdbsurfer_moviegenre cascade;
 truncate imdbsurfer_role cascade;
+truncate imdbsurfer_type cascade;

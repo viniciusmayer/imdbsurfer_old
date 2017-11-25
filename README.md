@@ -1,21 +1,21 @@
-# imdbsurfer
+# project setup
 
-# python setup
+## python setup
 ```
 sudo apt-get install python3
 ```
 
-# git setup 
+## git setup 
 ```
 sudo add-apt-repository ppa:git-core/ppa
 sudo apt-get update
 sudo apt-get install git
 ```
 
-# database setup
+## database setup
 ```
 sudo nano /etc/apt/sources.list.d/pgdg.list
-	deb http://apt.postgresql.org/pub/repos/apt/ artful-pgdg main
+> deb http://apt.postgresql.org/pub/repos/apt/ artful-pgdg main
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install postgresql-9.6
@@ -42,7 +42,7 @@ sudo -u imdbsurfer psql
 	\q
 ```
 
-# app setup
+## app setup
 ```
 git clone https://github.com/viniciusmayer/imdbsurfer.git
 virtualenv -p python3 imdbsurfer
@@ -50,4 +50,10 @@ cd imdbsurfer
 source bin/activate
 pip install scrapy
 pip install psycopg2
+```
+
+## additional steps
+```
+git config --global user.email "viniciusmayer@gmail.com"
+git config --global user.email "Vinicius Mayer"
 ```

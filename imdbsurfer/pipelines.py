@@ -51,7 +51,9 @@ selectMovieArtistRole = 'SELECT id FROM imdbsurfer_movieartistrole'\
 insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, dh_update, "artistRole_id", movie_id, user_create_id, user_update_id)'\
     ' VALUES (now(), now(), ({0}), ({1}), ({2}), ({3}))'.format(selectArtistRole, selectMovieByLink, selectUserByEmail, selectUserByEmail)
 
-roles = ['Director', 'Star']
+DIRECTOR = 'Director'
+STAR = 'Star'
+
 psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''1mdbsurf3r'''
 
 class TypePipeline(object):
@@ -60,10 +62,10 @@ class TypePipeline(object):
         self.cursor = self.connection.cursor()
     
     def process_item(self, item, spider):
-        type = item['type']
-        self.cursor.execute(selectTypeByName, [type])
+        _type = item['type']
+        self.cursor.execute(selectTypeByName, [_type])
         if (self.cursor.rowcount == 0):
-            self.cursor.execute(insertIntoType, [type, email, email])
+            self.cursor.execute(insertIntoType, [_type, email, email])
             self.connection.commit()
         
         return item
@@ -88,7 +90,7 @@ class RolePipeline(object):
         self.cursor = self.connection.cursor()
           
     def process_item(self, item, spider):
-        for role in roles:
+        for role in [DIRECTOR, STAR]:
             self.cursor.execute(selectRoleByName, [role])
             if (self.cursor.rowcount == 0):
                 self.cursor.execute(insertIntoRole, [role, email, email])
@@ -108,9 +110,9 @@ class ArtistPipeline(object):
                 self.cursor.execute(insertIntoArtist, [director, email, email])
                 self.connection.commit()
 
-            self.cursor.execute(selectArtistRole, [director, roles[0]])
+            self.cursor.execute(selectArtistRole, [director, DIRECTOR])
             if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoArtistRole, [director, roles[0], email, email])
+                self.cursor.execute(insertIntoArtistRole, [director, DIRECTOR, email, email])
                 self.connection.commit()
 
         if (item['stars'] is not None):
@@ -120,9 +122,9 @@ class ArtistPipeline(object):
                     self.cursor.execute(insertIntoArtist, [star, email, email])
                     self.connection.commit()
     
-                self.cursor.execute(selectArtistRole, [star, roles[1]])
+                self.cursor.execute(selectArtistRole, [star, STAR])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoArtistRole, [star, roles[1], email, email])
+                    self.cursor.execute(insertIntoArtistRole, [star, STAR, email, email])
                     self.connection.commit()
 
         return item
@@ -138,7 +140,7 @@ class MoviePipeline(object):
         link = item['link']
         metascore = item['metascore']
         genre = item['genre']
-        type = item['type']
+        _type = item['type']
         
         self.cursor.execute(selectMovieByLink, [link])
         if (self.cursor.rowcount == 0):
@@ -148,25 +150,25 @@ class MoviePipeline(object):
         self.connection.commit()
         
         for _genre in item['genres']:
-            self.cursor.execute(selectMovieGenre, [_genre, link, type])
+            self.cursor.execute(selectMovieGenre, [_genre, link, _type])
             index = item['index'] if _genre.lower() == genre else None
             if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, type, email, email])
+                self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, _type, email, email])
             else:
-                self.cursor.execute(updateMovieGenre, [index, email, _genre, link, type]) 
+                self.cursor.execute(updateMovieGenre, [index, email, _genre, link, _type]) 
             self.connection.commit()
         
         for director in item['directors']:
-            self.cursor.execute(selectMovieArtistRole, [director, roles[0], link])
+            self.cursor.execute(selectMovieArtistRole, [director, DIRECTOR, link])
             if (self.cursor.rowcount == 0):
-                self.cursor.execute(insertIntoMovieArtistRole, [director, roles[0], link, email, email])
+                self.cursor.execute(insertIntoMovieArtistRole, [director, DIRECTOR, link, email, email])
                 self.connection.commit()
         
         if (item['stars'] is not None):
             for star in item['stars']:
-                self.cursor.execute(selectMovieArtistRole, [star, roles[1], link])
+                self.cursor.execute(selectMovieArtistRole, [star, STAR, link])
                 if (self.cursor.rowcount == 0):
-                    self.cursor.execute(insertIntoMovieArtistRole, [star, roles[1], link, email, email])
+                    self.cursor.execute(insertIntoMovieArtistRole, [star, STAR, link, email, email])
                     self.connection.commit()
 
         return item

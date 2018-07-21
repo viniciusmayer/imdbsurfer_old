@@ -1,7 +1,36 @@
-# -*- coding: utf-8 -*-
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import psycopg2
+
+
+selectIndex = 'select case when m.metascore is not null and mg.index is not null'\
+'        then round(round((round(m.rate, 2) * 2.5'\
+'            + round(round(m.metascore, 2) / 10, 2) * 2.5'\
+'            + round(100/round(mg.index * 10, 2), 2) * 2.5'\
+'            + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
+'                / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 2.5'\
+'            ), 2) / 10, 2)'\
+'    when m.metascore is null and mg.index is not null'\
+'        then round(round((round(m.rate, 2) * 3'\
+'            + round(100/round(mg.index * 10, 1), 2) * 3'\
+'            + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
+'                / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 3'\
+'            ), 2) / 10, 2)'\
+'    else round(round((round(m.rate, 2) * 4'\
+'        + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
+'            / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 4'\
+'        ), 2) / 10, 2)'\
+'    end as cindex'\
+' from imdbsurfer_movie m'\
+'    inner join imdbsurfer_moviegenre mg on mg.movie_id=m.id and m.link = %s'\
+'    inner join imdbsurfer_genre g on g.id=mg.genre_id and g.name = %s'\
+'    inner join imdbsurfer_type t on t.id=mg.type_id and t.name = %s'\
+' order by cindex desc'
+updateIndex = 'update imdbsurfer_movie m set index = %s'\
+' from imdbsurfer_moviegenre mg, imdbsurfer_genre g, imdbsurfer_type t'\
+' where m.id=mg.movie_id and m.link = %s'\
+'    and g.id=mg.genre_id and g.name = %s'\
+'    and t.id=mg.type_id and t.name = %s'
 
 selectUserByEmail = 'select id from auth_user where email = %s'
 email = 'viniciusmayer@gmail.com'
@@ -54,7 +83,7 @@ insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, d
 DIRECTOR = 'Director'
 STAR = 'Star'
 
-psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''1mdbsurf3r'''
+psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''v1n1c1u5'''
 
 class TypePipeline(object):
     def __init__(self):
@@ -133,13 +162,13 @@ class MoviePipeline(object):
     def __init__(self):
         self.connection = psycopg2.connect(psycopg_connect)
         self.cursor = self.connection.cursor()
-          
+
     def process_item(self, item, spider):
         rate = item['rate']
         votes = item['votes']
         link = item['link']
         metascore = item['metascore']
-        genre = item['genre']
+        urlGenre = item['genre']
         _type = item['type']
         
         self.cursor.execute(selectMovieByLink, [link])
@@ -151,13 +180,13 @@ class MoviePipeline(object):
         
         for _genre in item['genres']:
             self.cursor.execute(selectMovieGenre, [_genre, link, _type])
-            index = item['index'] if _genre.lower() == genre else None
+            index = item['index'] if _genre == urlGenre else None
             if (self.cursor.rowcount == 0):
                 self.cursor.execute(insertIntoMovieGenre, [index, _genre, link, _type, email, email])
             else:
-                self.cursor.execute(updateMovieGenre, [index, email, _genre, link, _type]) 
+                self.cursor.execute(updateMovieGenre, [index, email, _genre, link, _type])
             self.connection.commit()
-        
+
         for director in item['directors']:
             self.cursor.execute(selectMovieArtistRole, [director, DIRECTOR, link])
             if (self.cursor.rowcount == 0):

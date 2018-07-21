@@ -28,10 +28,10 @@ class CleanPipeline(object):
         return value[begin:begin+4]
 
     def getGenre(self, value):
-        return value[value.find('genres') + 7:value.find('num_votes') - 1]
+        return value[value.find('genres') + 7:value.find('num_votes') - 1].lower()
 
     def getType(self, value):
-        return value[value.find('title_type') + 11:value.find('sort') - 1] 
+        return value[value.find('title_type') + 11:value.find('sort') - 1].lower()
 
     def getArtists(self, a, b):
         _a = []
@@ -76,7 +76,7 @@ class CleanPipeline(object):
     def getGenres(self, value):
         _value = []
         for i in value.split(","):
-            _value.append(self.cleanString(i))
+            _value.append(self.cleanString(i).lower())
         return _value
 
     def getLink(self, value):

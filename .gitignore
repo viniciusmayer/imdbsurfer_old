@@ -10,3 +10,5 @@ Include
 Lib
 Scripts
 tcl
+/.metadata/
+/share/

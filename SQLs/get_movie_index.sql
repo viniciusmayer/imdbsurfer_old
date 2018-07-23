@@ -1,6 +1,18 @@
-CREATE OR REPLACE FUNCTION get_movie_index(_movie_id integer
-  , _genre_id integer
-  , _type_id integer) RETURNS decimal AS $$
+-- FUNCTION: public.get_movie_index(integer, integer, integer)
+
+-- DROP FUNCTION public.get_movie_index(integer, integer, integer);
+
+CREATE OR REPLACE FUNCTION public.get_movie_index(
+	_movie_id integer,
+	_genre_id integer,
+	_type_id integer)
+    RETURNS numeric
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
+
 DECLARE _index decimal;
 	min_index decimal;
 	max_index decimal;
@@ -45,4 +57,8 @@ BEGIN
 		inner join imdbsurfer_type t on t.id=mg.type_id and t.id = _type_id;
 	RETURN _index;
 END;
-$$ LANGUAGE plpgsql;
+
+$BODY$;
+
+ALTER FUNCTION public.get_movie_index(integer, integer, integer)
+    OWNER TO postgres;

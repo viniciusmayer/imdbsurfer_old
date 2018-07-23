@@ -1,8 +1,20 @@
-CREATE OR REPLACE FUNCTION rescale(oldvalue decimal
-	, oldmin decimal
-	, oldmax decimal
-	, newmin decimal
-	, newmax decimal) RETURNS decimal AS $$
+-- FUNCTION: public.rescale(numeric, numeric, numeric, numeric, numeric)
+
+-- DROP FUNCTION public.rescale(numeric, numeric, numeric, numeric, numeric);
+
+CREATE OR REPLACE FUNCTION public.rescale(
+	oldvalue numeric,
+	oldmin numeric,
+	oldmax numeric,
+	newmin numeric,
+	newmax numeric)
+    RETURNS numeric
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
+
 DECLARE oldrange decimal;
 	newrange decimal;
 	newvalue decimal;
@@ -12,4 +24,8 @@ BEGIN
 	newvalue = (((oldvalue - oldmin) * newrange) / oldrange) + newmin;
 	RETURN newvalue;
 END;
-$$ LANGUAGE plpgsql;
+
+$BODY$;
+
+ALTER FUNCTION public.rescale(numeric, numeric, numeric, numeric, numeric)
+    OWNER TO postgres;

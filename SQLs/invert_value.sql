@@ -8,13 +8,11 @@ CREATE OR REPLACE FUNCTION public.invert_value(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE 
+    VOLATILE
 AS $BODY$
 
-DECLARE newvalue decimal;
 BEGIN
-	newvalue = 10 / oldvalue;
-	RETURN newvalue;
+	RETURN (10 / oldvalue);
 END;
 
 $BODY$;

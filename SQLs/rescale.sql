@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION public.rescale(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE 
+    VOLATILE
 AS $BODY$
 
 DECLARE oldrange decimal;

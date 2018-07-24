@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION public.get_movie_index(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE 
+    VOLATILE
 AS $BODY$
 
 DECLARE _index decimal;
@@ -34,28 +34,25 @@ BEGIN
 
 	select case
 		when m.metascore is not null and mg.index is not null
-			then round((
-				rescale(m.rate, min_rate, max_rate, 1, 10) * 2.5
-				+ rescale(m.metascore, min_metascore, max_metascore, 1, 10) * 2.5
-				+ rescale(m.votes, min_votes, max_votes, 1, 10) * 2.5
-				+ invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 2.5
-				) / 10, 2)
+			then (m.rate * 2.5
+				  + (m.metascore / 10) * 2.5
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2.5
+				  + invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 2.5
+				 ) / 10
 		when m.metascore is null and mg.index is not null
-			then round((
-				rescale(m.rate, min_rate, max_rate, 1, 10) * 3
-				+ rescale(m.votes, min_votes, max_votes, 1, 10) * 3
-				+ invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 3
-				) / 10, 2)
-		else round((
-				rescale(m.rate, min_rate, max_rate, 1, 10) * 4
-				+ rescale(m.votes, min_votes, max_votes, 1, 10) * 4
-				) / 10, 2)
+			then (m.rate * 3
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 3
+				  + invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 3
+				 ) / 10
+		else (m.rate * 4
+			  + rescale(m.votes, min_votes, max_votes, 0, 10) * 4
+			 ) / 10
 		end as cindex into _index
 	from imdbsurfer_movie m
 		inner join imdbsurfer_moviegenre mg on mg.movie_id=m.id and m.id = _movie_id
 		inner join imdbsurfer_genre g on g.id=mg.genre_id and g.id = _genre_id
 		inner join imdbsurfer_type t on t.id=mg.type_id and t.id = _type_id;
-	RETURN _index;
+	RETURN round(_index, 2);
 END;
 
 $BODY$;

@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION public.set_movie_index(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE 
+    VOLATILE
 AS $BODY$
 
 BEGIN

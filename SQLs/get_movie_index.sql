@@ -37,12 +37,17 @@ BEGIN
 			then (m.rate * 2.5
 				  + (m.metascore / 10) * 2.5
 				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2.5
-				  + invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 2.5
+				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * 2.5
+				 ) / 10
+		when m.metascore is not null and mg.index is null
+			then (m.rate * 3
+				  + (m.metascore / 10) * 3
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 3
 				 ) / 10
 		when m.metascore is null and mg.index is not null
 			then (m.rate * 3
 				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 3
-				  + invert_value(rescale(mg.index, min_index, max_index, 1, 10)) * 3
+				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * 3
 				 ) / 10
 		else (m.rate * 4
 			  + rescale(m.votes, min_votes, max_votes, 0, 10) * 4

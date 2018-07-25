@@ -3,35 +3,6 @@
 import psycopg2
 
 
-selectIndex = 'select case when m.metascore is not null and mg.index is not null'\
-'        then round(round((round(m.rate, 2) * 2.5'\
-'            + round(round(m.metascore, 2) / 10, 2) * 2.5'\
-'            + round(100/round(mg.index * 10, 2), 2) * 2.5'\
-'            + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
-'                / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 2.5'\
-'            ), 2) / 10, 2)'\
-'    when m.metascore is null and mg.index is not null'\
-'        then round(round((round(m.rate, 2) * 3'\
-'            + round(100/round(mg.index * 10, 1), 2) * 3'\
-'            + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
-'                / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 3'\
-'            ), 2) / 10, 2)'\
-'    else round(round((round(m.rate, 2) * 4'\
-'        + round(round((m.votes - (select min(votes) from imdbsurfer_movie)) * (10 - 0), 2)'\
-'            / round(((select max(votes) from imdbsurfer_movie) - (select min(votes) from imdbsurfer_movie)) + 0, 2), 2) * 4'\
-'        ), 2) / 10, 2)'\
-'    end as cindex'\
-' from imdbsurfer_movie m'\
-'    inner join imdbsurfer_moviegenre mg on mg.movie_id=m.id and m.link = %s'\
-'    inner join imdbsurfer_genre g on g.id=mg.genre_id and g.name = %s'\
-'    inner join imdbsurfer_type t on t.id=mg.type_id and t.name = %s'\
-' order by cindex desc'
-updateIndex = 'update imdbsurfer_movie m set index = %s'\
-' from imdbsurfer_moviegenre mg, imdbsurfer_genre g, imdbsurfer_type t'\
-' where m.id=mg.movie_id and m.link = %s'\
-'    and g.id=mg.genre_id and g.name = %s'\
-'    and t.id=mg.type_id and t.name = %s'
-
 selectUserByEmail = 'select id from auth_user where email = %s'
 email = 'viniciusmayer@gmail.com'
 

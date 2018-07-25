@@ -21,8 +21,7 @@ DECLARE oldrange decimal;
 BEGIN
 	oldrange = (oldmax - oldmin);
 	newrange = (newmax - newmin);
-	newvalue = (((oldvalue - oldmin) * newrange) / oldrange) + newmin;
-	RETURN newvalue;
+	RETURN (((oldvalue - oldmin) * newrange) / oldrange) + newmin;
 END;
 
 $BODY$;

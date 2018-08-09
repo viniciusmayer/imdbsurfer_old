@@ -8,11 +8,12 @@ class MoviesSpider(scrapy.Spider):
     #'tv_episode',
     types = ['feature', 'tv_movie', 'tv_series', 'tv_special', 'mini_series', 'documentary', 'game', 'short', 'video', 'tvshort']
     name = "movies"
-    url = 'http://www.imdb.com/search/title?count=200&genres={0}&num_votes=1000,&title_type={1}&sort=user_rating,desc' 
+    url = 'http://www.imdb.com/search/title?count=200&genres={0}&num_votes=1000,&title_type={1}&sort=user_rating,desc&page={2}' 
     start_urls = []
     for genre in genres:
         for type in types:
-            start_urls.append(url.format(genre, type))
+            for i in range(1, 9):
+                start_urls.append(url.format(genre, type, i))
 
     def parse(self, response):
         for i in response.css('div[class="lister-item mode-advanced"]'):

@@ -1,7 +1,10 @@
+import time
 from imdbsurfer.SetMovieIndex import SetMovieIndex
 
 if __name__ == '__main__':
+    start_time = time.time()
     smi = SetMovieIndex()
-    print('SetMovieIndex: {0}'.format('begin'))
+    print('SetMovieIndex, begin')
     smi.process()
-    print('SetMovieIndex: {0}'.format('end'))
+    elapsed_time = time.time() - start_time
+    print('SetMovieIndex, end: {1}'.format(time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))

@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION public.get_movie_index(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE
+    VOLATILE 
 AS $BODY$
 
 DECLARE _index decimal;
@@ -24,6 +24,12 @@ DECLARE _index decimal;
 	max_rate decimal;
 	min_year decimal;
 	max_year decimal;
+	index_weight decimal := 2.25;
+	metascore_weight decimal := 2.25;
+	votes_weight decimal := 2.25;
+	rate_weight decimal := 2.25;
+	year_weight decimal := 1;
+	weight_adjustment decimal := 0.5;
 BEGIN
 	select min(rate) into min_rate from imdbsurfer_movie;
 	select max(rate) into max_rate from imdbsurfer_movie;
@@ -38,28 +44,28 @@ BEGIN
 
 	select case
 		when m.metascore is not null and mg.index is not null
-			then (m.rate * 2
-				  + (m.metascore / 10) * 2
-				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2
-				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * 2
-				  + rescale(m.year, min_year, max_year, 1, 10) * 2
-				 ) / 10
+			then (m.rate * rate_weight
+				  + (m.metascore / 10) * metascore_weight
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
+				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * index_weight
+				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
+				 ) / (rate_weight + metascore_weight + votes_weight + index_weight + year_weight)
 		when m.metascore is not null and mg.index is null
-			then (m.rate * 2
-				  + (m.metascore / 10) * 2
-				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2
-				  + rescale(m.year, min_year, max_year, 1, 10) * 2
-				 ) / 9
+			then (m.rate * rate_weight
+				  + (m.metascore / 10) * metascore_weight
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
+				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
+				 ) / (rate_weight + metascore_weight + votes_weight + year_weight + weight_adjustment)
 		when m.metascore is null and mg.index is not null
-			then (m.rate * 2
-				  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2
-				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * 2
-				  + rescale(m.year, min_year, max_year, 1, 10) * 2
-				 ) / 9
-		else (m.rate * 2
-			  + rescale(m.votes, min_votes, max_votes, 0, 10) * 2
-			  + rescale(m.year, min_year, max_year, 1, 10) * 2
-			 ) / 8
+			then (m.rate * rate_weight
+				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
+				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * index_weight
+				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
+				 ) / (rate_weight + votes_weight + index_weight + year_weight + weight_adjustment)
+		else (m.rate * rate_weight
+			  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
+			  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
+			 ) / (rate_weight + votes_weight + year_weight + (weight_adjustment * 2))
 		end as cindex into _index
 	from imdbsurfer_movie m
 		inner join imdbsurfer_moviegenre mg on mg.movie_id=m.id and m.id = _movie_id

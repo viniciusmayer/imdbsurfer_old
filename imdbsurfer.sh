@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "ScrapyCrawl begin"
+date
 inicio=$(date +"%s")
 docker start postgres
 cd /home/eleonorvinicius/Projects/imdbsurfer

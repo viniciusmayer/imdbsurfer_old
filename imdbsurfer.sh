@@ -12,5 +12,5 @@ dif=$(($fim-$inicio))
 horas=$(($dif/3600))
 minutos=$((($dif%3600)/60))
 segundos=$(($dif%60))
-echo "ScrapyCrawl end: ${horas}h:${minutos}m:${segundos}s"
+echo "ScrapyCrawl end: ${horas}:${minutos}:${segundos}"
 date

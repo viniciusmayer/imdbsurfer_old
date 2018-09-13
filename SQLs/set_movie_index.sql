@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION public.set_movie_index(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE
+    VOLATILE 
 AS $BODY$
 
 DECLARE min_index decimal;
@@ -42,7 +42,10 @@ BEGIN
 	select max(year) into max_year from imdbsurfer_movie;
 	select min(index) into min_index from imdbsurfer_moviegenre;
 	select max(index) into max_index from imdbsurfer_moviegenre;
-
+	
+	update imdbsurfer_movie m
+	set last_index = index;
+	
 	update imdbsurfer_movie m
     set index = get_movie_index(m.id, g.id, t.id
 			, min_index, max_index
@@ -54,6 +57,10 @@ BEGIN
 			, weight_one, weight_two, weight_tree, weight_four)
     from imdbsurfer_moviegenre mg, imdbsurfer_genre g, imdbsurfer_type t
     where m.id=mg.movie_id and g.id=mg.genre_id and t.id=mg.type_id;
+	
+    update imdbsurfer_movie m
+    set last_update = (index - last_index) / 10;
+    	
 	RETURN 0;
 END;
 

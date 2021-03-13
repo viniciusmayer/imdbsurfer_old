@@ -77,7 +77,7 @@ virtualenv -p python3 imdbsurfer
 cd imdbsurfer
 source bin/activate
 pip install scrapy
-pip install psycopg2
+pip install psycopg2-binary
 ```
 
 ## additional steps
@@ -85,3 +85,8 @@ pip install psycopg2
 git config --global user.email "viniciusmayer@gmail.com"
 git config --global user.email "Vinicius Mayer"
 ```
+
+## new configuration
+docker network create --driver bridge postgres-network
+docker run --name postgres-database -p 5432:5432 --network=postgres-network -e POSTGRES_PASSWORD=p0stgr3s -d postgres
+docker run --name postgres-admin --network=postgres-network -p 15432:80 -e "PGADMIN_DEFAULT_EMAIL=viniciusmayer@gmail.com" -e "PGADMIN_DEFAULT_PASSWORD=pg4dm1n" -d dpage/pgadmin4

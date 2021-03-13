@@ -54,7 +54,7 @@ insertIntoMovieArtistRole = 'INSERT INTO imdbsurfer_movieartistrole(dh_create, d
 DIRECTOR = 'Director'
 STAR = 'Star'
 
-psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''v1n1c1u5'''
+psycopg_connect = 'dbname=''imdbsurfer'' user=''imdbsurfer'' host=''localhost'' password=''1mdbsurf3r'''
 
 class TypePipeline(object):
     def __init__(self):

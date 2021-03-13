@@ -3,6 +3,7 @@
 
 import scrapy
 
+
 class Movie(scrapy.Item):
     genre = scrapy.Field()
     type = scrapy.Field()
@@ -17,7 +18,7 @@ class Movie(scrapy.Item):
     directors = scrapy.Field()
     stars = scrapy.Field()
     genres = scrapy.Field()
-    
+
     url = scrapy.Field()
     artistsa = scrapy.Field()
     artistsb = scrapy.Field()

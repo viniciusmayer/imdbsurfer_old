@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-import itertools, re
+import itertools
+import re
+
 
 class CleanPipeline(object):
     def process_item(self, item, spider):
@@ -9,7 +11,7 @@ class CleanPipeline(object):
         item['votes'] = self.cleanInteger(item['votes'][1])
         item['minutes'] = self.cleanInteger(item['minutes'][0]) if len(item['minutes']) > 0 else None
         item['metascore'] = self.cleanInteger(item['metascore'][0]) if len(item['metascore']) > 0 else None
-        
+
         item['name'] = self.cleanString(item['name'][0])
         item['rate'] = self.cleanString(item['rate'][0])
 
@@ -25,7 +27,7 @@ class CleanPipeline(object):
 
     def getYear(self, value):
         begin = re.search("\d", value).start()
-        return value[begin:begin+4]
+        return value[begin:begin + 4]
 
     def getGenre(self, value):
         return value[value.find('genres') + 7:value.find('num_votes') - 1].lower()
@@ -42,11 +44,11 @@ class CleanPipeline(object):
             _b.append(self.cleanString(i))
         _b.remove('')
         return list(itertools.chain.from_iterable(zip(_b, _a)))
-    
+
     def getDirectors(self, value):
         end = None
         try:
-            end = value.index('Stars:') 
+            end = value.index('Stars:')
         except ValueError:
             pass
         if (end is None):
@@ -56,11 +58,11 @@ class CleanPipeline(object):
                 pass
         _value = value[1:end]
         return [v for v in _value if v != ',']
-    
+
     def getStars(self, value):
         begin = None
         try:
-            begin = value.index('Stars:') 
+            begin = value.index('Stars:')
         except ValueError:
             pass
         if (begin is None):
@@ -84,7 +86,7 @@ class CleanPipeline(object):
 
     def cleanInteger(self, value):
         return ''.join(i for i in value if i.isdigit())
-    
+
     def cleanString(self, value):
         if (value is not None):
             return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')

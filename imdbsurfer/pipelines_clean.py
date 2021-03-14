@@ -51,7 +51,7 @@ class CleanPipeline(object):
             end = value.index('Stars:')
         except ValueError:
             pass
-        if (end is None):
+        if end is None:
             try:
                 end = value.index('Star:')
             except ValueError:
@@ -65,12 +65,12 @@ class CleanPipeline(object):
             begin = value.index('Stars:')
         except ValueError:
             pass
-        if (begin is None):
+        if begin is None:
             try:
                 begin = value.index('Star:')
             except ValueError:
                 pass
-        if (begin is None):
+        if begin is None:
             return None
         _value = value[begin + 1:len(value)]
         return [v for v in _value if v != ',']
@@ -81,6 +81,7 @@ class CleanPipeline(object):
             _value.append(self.cleanString(i).lower())
         return _value
 
+    # TODO parece estar faltando um caractere nos links que estão sendo salvos no banco de dados
     def getLink(self, value):
         return 'http://www.imdb.com{0}'.format(value[:value.find('?') - 1])
 
@@ -88,6 +89,6 @@ class CleanPipeline(object):
         return ''.join(i for i in value if i.isdigit())
 
     def cleanString(self, value):
-        if (value is not None):
+        if value is not None:
             return value.rstrip().lstrip().strip('\n').strip('\t').strip('\r')
         return None

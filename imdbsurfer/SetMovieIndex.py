@@ -13,8 +13,7 @@ class SetMovieIndex(object):
         user = config['DATABASE']['user']
         passw = config['DATABASE']['pass']
 
-        self.connection = psycopg2.connect(
-            'dbname={0} user={1} host={2} password={3}'.format(schema, user, host, passw))
+        self.connection = psycopg2.connect('dbname={0} user={1} host={2} password={3}'.format(schema, user, host, passw))
         self.cursor = self.connection.cursor()
 
     def process(self):

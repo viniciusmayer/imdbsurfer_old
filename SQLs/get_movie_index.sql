@@ -20,11 +20,7 @@ CREATE OR REPLACE FUNCTION public.get_movie_index(
 	metascore_weight numeric,
 	votes_weight numeric,
 	rate_weight numeric,
-	year_weight numeric,
-	weight_one numeric,
-	weight_two numeric,
-	weight_tree numeric,
-	weight_four numeric)
+	year_weight numeric)
     RETURNS numeric
     LANGUAGE 'plpgsql'
 
@@ -35,29 +31,29 @@ AS $BODY$
 DECLARE _index decimal;
 BEGIN
 	select case
-		when m.metascore is not null and mg.index is not null
+		when m.metascore is not null and mg.index is not null --completo
 			then (m.rate * rate_weight
 				  + (m.metascore / 10) * metascore_weight
 				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
 				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * index_weight
 				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
-				 ) / weight_one
-		when m.metascore is not null and mg.index is null
+				) / 10
+		when m.metascore is not null and mg.index is null --não tem index
 			then (m.rate * rate_weight
 				  + (m.metascore / 10) * metascore_weight
 				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
 				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
-				 ) / weight_two
-		when m.metascore is null and mg.index is not null
+				) / 10
+		when m.metascore is null and mg.index is not null -- não tem metascore
 			then (m.rate * rate_weight
 				  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
 				  + (10 / rescale(mg.index, min_index, max_index, 1, 10)) * index_weight
 				  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
-				 ) / weight_tree
-		else (m.rate * rate_weight
+				) / 10
+		else (m.rate * rate_weight --não tem index e não tem metascore
 			  + rescale(m.votes, min_votes, max_votes, 0, 10) * votes_weight
 			  + rescale(m.year, min_year, max_year, 1, 10) * year_weight
-			 ) / weight_four
+			) / 10
 		end as cindex into _index
 	from imdbsurfer_movie m
 		inner join imdbsurfer_moviegenre mg on mg.movie_id=m.id and m.id = _movie_id
@@ -68,5 +64,5 @@ END;
 
 $BODY$;
 
-ALTER FUNCTION public.get_movie_index(integer, integer, integer, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric)
-    OWNER TO postgres;
+ALTER FUNCTION public.get_movie_index(integer, integer, integer, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric, numeric)
+    OWNER TO imdbsurfer;
